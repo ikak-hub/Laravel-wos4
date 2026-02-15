@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('bukus', function (Blueprint $table) {
             $table->id('idbuku');
-            $table->string('kode', length:20);
-            $table->string('judul', length:500);
-            $table->string('pengarang', length:200);
-            $table->foreignId('idkategori')->constrained('kategoris');
+            $table->string('kode', 20);
+            $table->string('judul', 500);
+            $table->string('pengarang', 200);
+
+            // Foreign key otomasis dengan nama kolom idkategori yang merujuk ke tabel kategoris
+            $table->foreignId('idkategori')
+                  ->constrained('kategoris', 'idkategori')
+                  ->onDelete('cascade');
+
             $table->timestamps();
         });
     }

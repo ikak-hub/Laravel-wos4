@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('kategoris', function (Blueprint $table) {
             $table->id()->autoIncrement();
-            $table->string('nama_kategori', length:100);
+            $table->string('nama_kategori', 100);
             $table->timestamps();
         });
     }
