@@ -1,8 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-@include('layouts.header', ['title' => 'Daftar Kategori', 'icon' => 'mdi-book-open-page-variant'])
+@include('layouts.header', ['title' => 'kategori', 'icon' => 'mdi-folder-multiple-image'])
 
+
+<?php
+session()->put('current_page', 'buku');
+?>
 <div class="row">
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">
@@ -19,7 +23,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>ID</th>
+                                <!-- <th>ID</th> -->
                                 <th>Nama Kategori</th>
                                 <th>Aksi</th>
                             </tr>
@@ -28,7 +32,7 @@
                             @forelse($kategoris as $index => $kategori)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
-                                <td>{{ $kategori->idkategori }}</td>
+                                <!-- <td>{{ $kategori->idkategori }}</td> -->
                                 <td>{{ $kategori->nama_kategori }}</td>
                                 <td>
                                     <button type="button" class="btn btn-gradient-info btn-sm" 

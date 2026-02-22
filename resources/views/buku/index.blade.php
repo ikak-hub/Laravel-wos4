@@ -1,7 +1,7 @@
 @extends('layouts.app')
-
 @section('content')
-@include('layouts.header', ['title' => 'Daftar Buku', 'icon' => 'mdi-bookmark-outline'])
+@include('layouts.header', ['title' => 'Daftar Buku', 'icon' => 'mdi-book-open-variant'])
+
 
 <div class="row">
     <div class="col-lg-12 grid-margin stretch-card">

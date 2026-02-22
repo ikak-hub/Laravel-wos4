@@ -14,7 +14,6 @@ class User extends Authenticatable
     public $incrementing = true;
     protected $keyType = 'int';
     
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -26,6 +25,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'id_google',    // Menambahkan id_google ke fillable agar bisa diisi saat membuat atau mengupdate user
+        'otp',          // Menambahkan otp ke fillable agar bisa diisi saat membuat atau mengupdate user
+        'otp_expires_at',   // Menambahkan otp_expires_at ke fillable agar bisa diisi saat membuat atau mengupdate user
     ];
 
     /**
@@ -36,6 +38,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'otp', // Ini penting untuk menyembunyikan OTP agar tidak terlihat saat user data diserialisasi, misalnya saat dikirim sebagai response API
     ];
 
     /**
@@ -47,6 +50,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'otp_expires_at' => 'datetime', // Pastikan OTP expires_at juga dicast ke datetime agar mudah digunakan dalam logika aplikasi
             'password' => 'hashed',
         ];
     }

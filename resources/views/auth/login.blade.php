@@ -6,10 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Purple Admin</title>
     <!-- plugins:css -->
-    <link rel="stylesheet" href="{{ asset('assets/vendors/mdi/css/materialdesignicons.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendors/ti-icons/css/themify-icons.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendors/css/vendor.bundle.base.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendors/font-awesome/css/font-awesome.min.css') }}">
+  @include('layouts.styleglobal')
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <!-- End plugin css for this page -->
@@ -63,6 +60,10 @@
                     @endif
                   </div>
                   <div class="mb-2 d-grid gap-2">
+                    <a href="{{ route('auth.google') }}" class="btn btn-block btn-google auth-form-btn">
+                      <i class="mdi mdi-google me-2"></i>Connect using google </a>
+                  </div>
+                  <div class="mb-2 d-grid gap-2">
                     <button type="button" class="btn btn-block btn-facebook auth-form-btn">
                       <i class="mdi mdi-facebook me-2"></i>Connect using facebook </button>
                   </div>
@@ -84,11 +85,7 @@
     <!-- Plugin js for this page -->
     <!-- End plugin js for this page -->
     <!-- inject:js -->
-    <script src="{{ asset('assets/js/off-canvas.js') }}"></script>
-    <script src="{{ asset('assets/js/misc.js') }}"></script>
-    <script src="{{ asset('assets/js/settings.js') }}"></script>
-    <script src="{{ asset('assets/js/todolist.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.cookie.js') }}"></script>
+    @include('layouts.javascriptpage')
     <!-- endinject -->
   </body>
 </html>
