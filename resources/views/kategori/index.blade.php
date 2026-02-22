@@ -3,10 +3,6 @@
 @section('content')
 @include('layouts.header', ['title' => 'kategori', 'icon' => 'mdi-folder-multiple-image'])
 
-
-<?php
-session()->put('current_page', 'buku');
-?>
 <div class="row">
     <div class="col-lg-12 grid-margin stretch-card">
         <div class="card">

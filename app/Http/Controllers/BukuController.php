@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Buku;
 use App\Models\Kategori;
+use Barryvdh\DomPDF\Facade\Pdf; 
 
 class BukuController extends Controller
 {
@@ -63,5 +64,29 @@ class BukuController extends Controller
         $buku->delete();
         return redirect()->route('buku.index')
                          ->with('success', 'Buku deleted successfully.');
+    }
+
+    public function generatePdf()
+    {
+        $bukus    = Buku::with('kategori')->get();
+        $kategoris = Kategori::withCount('bukus')->get();
+        return view('pdf.index', compact('bukus', 'kategoris'));
+    }
+    public function downloadSertifikat()
+    {
+        $pdf = Pdf::loadView('pdf.sertifikat')
+                  ->setPaper('a4', 'landscape');
+
+        return $pdf->download('sertifikat_mahasiswa.pdf');
+    }
+    public function downloadUndangan()
+    {
+        $bukus     = Buku::with('kategori')->get();
+        $kategoris = Kategori::withCount('bukus')->get();
+
+        $pdf = Pdf::loadView('pdf.undangan', compact('bukus', 'kategoris'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download('undangan_fakultas.pdf');
     }
 }

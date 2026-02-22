@@ -34,7 +34,7 @@
     <li class="nav-item">
       <a class="nav-link {{ Route::is('pdf.index') ? 'active' : '' }}" href="{{ route('pdf.index') }}">
         <span class="menu-title">PDF</span>
-        <i class="mdi mdi-file-pdf menu-icon"></i>
+        <i class="mdi mdi-file-pdf menu-icon"></i>  
       </a>
     </li>
   </ul>

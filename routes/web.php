@@ -26,7 +26,16 @@ Route::middleware(['auth'])->group(function () {
    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('kategori', KategoriController::class);
     Route::resource('buku', BukuController::class);
+
+    // Route untuk PDF
     Route::get('/pdf', [BukuController::class, 'generatePdf'])->name('pdf.index');
+
+    // PDF Routes
+    Route::get('/pdf', [BukuController::class, 'generatePdf'])->name('pdf.index');
+    Route::get('/pdf/sertifikat', [BukuController::class, 'previewSertifikat'])->name('pdf.sertifikat.preview');
+    Route::get('/pdf/undangan', [BukuController::class, 'previewUndangan'])->name('pdf.undangan.preview');
+    Route::get('/pdf/sertifikat', [BukuController::class, 'downloadSertifikat'])->name('pdf.sertifikat');
+    Route::get('/pdf/undangan',   [BukuController::class, 'downloadUndangan'])->name('pdf.undangan');        
 });
 
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
