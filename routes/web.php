@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\OtpController;
+use App\Http\Controllers\BarangController;
 
 
 Route::get('/', fn () => redirect()->route('login'));
@@ -27,8 +28,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kategori', KategoriController::class);
     Route::resource('buku', BukuController::class);
 
-    // Route untuk PDF
-    Route::get('/pdf', [BukuController::class, 'generatePdf'])->name('pdf.index');
+    Route::get('/barang/cetak', [App\Http\Controllers\BarangController::class, 'cetakForm'])->name('barang.cetak.form');
+    Route::post('/barang/cetak', [App\Http\Controllers\BarangController::class, 'cetakPdf'])->name('barang.cetak.pdf');
+    Route::resource('/barang', BarangController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // PDF Routes
     Route::get('/pdf', [BukuController::class, 'generatePdf'])->name('pdf.index');

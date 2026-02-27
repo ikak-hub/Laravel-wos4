@@ -86,8 +86,6 @@ class GoogleController extends Controller
         });
     }
 
-    // ========== NEW METHODS ADDED BELOW ==========
-
     // Show OTP Form
     public function showOtpForm()
     {
@@ -116,12 +114,11 @@ class GoogleController extends Controller
             return back()->with('error', 'Kode OTP salah!');
         }
 
-        // Check expiration
         if (now()->greaterThan($user->otp_expires_at)) {
             return back()->with('error', 'Kode OTP sudah expired. Silakan login lagi.');
         }
 
-        // Clear OTP and log the user in
+        // OTP valid, hapus OTP dari DB dan login user
         $user->update([
             'otp' => null,
             'otp_expires_at' => null,

@@ -11,8 +11,8 @@
         color: white;
         margin: 0;
         padding: 0;
-        width: 279mm;   /* DomPDF landscape A4 width */
-        height: 197mm;  /* DomPDF landscape A4 height */
+        width: 279mm;  
+        height: 197mm; 
     }
 
     .page {
@@ -25,7 +25,6 @@
         overflow: hidden;
     }
 
-    /* Strip kiri kanan */
     .strip-left {
         position: absolute;
         left: 0; top: 0; bottom: 0; width: 20mm;
@@ -39,7 +38,6 @@
         border-left: 4px solid #f0a500;
     }
 
-    /* Border emas double */
     .border-outer {
         position: absolute;
         top: 6mm; left: 6mm; right: 6mm; bottom: 6mm;
@@ -114,7 +112,6 @@
         margin-bottom: 6mm;
     }
 
-    /* Tanda tangan pakai table */
     .sig-table {
         width: 100%;
         border-collapse: collapse;
@@ -170,7 +167,6 @@
     </div>
     <div class="achievement">JUARA I (PERTAMA)</div>
 
-    <!-- Tanda Tangan -->
     <table class="sig-table">
         <tr>
             <td>
