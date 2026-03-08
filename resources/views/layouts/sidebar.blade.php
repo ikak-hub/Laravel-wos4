@@ -40,8 +40,42 @@
     <li class="nav-item">
       <a class="nav-link {{ Route::is('pdf.index') ? 'active' : '' }}" href="{{ route('pdf.index') }}">
         <span class="menu-title">PDF</span>
-        <i class="mdi mdi-file-pdf menu-icon"></i>  
+        <i class="mdi mdi-file-pdf menu-icon"></i>
       </a>
     </li>
+    {{-- ── JS Studi Kasus Menu ─────────────────────────────── --}}
+    <li class="nav-item {{ Route::is('js.*') ? 'active' : '' }}">
+      <a class="nav-link" data-bs-toggle="collapse" href="#jsStudiMenu" aria-expanded="{{ Route::is('js.*') ? 'true' : 'false' }}">
+        <span class="menu-title">JS Studi Kasus</span>
+        <i class="mdi mdi-code-tags menu-icon"></i>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse {{ Route::is('js.*') ? 'show' : '' }}" id="jsStudiMenu">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('js.studi1') ? 'active' : '' }}" href="{{ route('js.studi1') }}">
+              Studi 1 – Button Spinner
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('js.studi2_plain') ? 'active' : '' }}" href="{{ route('js.studi2_plain') }}">
+              Studi 2&3 – Tabel Biasa
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('js.studi3_dt') ? 'active' : '' }}" href="{{ route('js.studi3_dt') }}">
+              Studi 2&3 – DataTables
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('js.studi4') ? 'active' : '' }}" href="{{ route('js.studi4') }}">
+              Studi 4 – Select & Select2
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    {{-- ─────────────────────────────────────────────────────── --}}
+
   </ul>
 </nav>

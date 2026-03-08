@@ -24,12 +24,9 @@
                             class="btn btn-gradient-success btn-sm">
                             <i class="mdi mdi-printer me-1"></i> Cetak Tag Harga
                         </a>
-                        <button type="button"
-                            class="btn btn-gradient-primary btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalTambah">
-                            <i class="mdi mdi-plus me-1"></i> Tambah Barang
-                        </button>
+                        <a href="{{ route('barang.create') }}" class="btn btn-primary btn-sm">
+                            Tambah Barang
+                        </a>
                     </div>
                 </div>
 
@@ -46,87 +43,36 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($barang as $b)
+                            @forelse($barang as $barang)
                             <tr>
                                 <td>
                                     <span class="badge badge-gradient-info font-monospace">
-                                        {{ $b->id_barang }}
+                                        {{ $barang->id_barang }}
                                     </span>
                                 </td>
-                                <td>{{ $b->nama }}</td>
-                                <td>Rp {{ number_format($b->harga, 0, ',', '.') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($b->timestamp)->format('d M Y, H:i') }}</td>
+                                <td>{{ $barang->nama }}</td>
+                                <td>Rp {{ number_format($barang->harga, 0, ',', '.') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($barang->timestamp)->format('d M Y, H:i') }}</td>
                                 <td class="text-center">
 
-                                    {{-- Tombol Edit --}}
-                                    <button type="button"
-                                        class="btn btn-gradient-warning btn-sm px-2"
-                                        title="Edit"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEdit{{ $b->id_barang }}">
+                                    {{-- Tombol edit --}}
+                                    <a href="{{ route('barang.edit', $barang->id_barang) }}"
+                                        class="btn btn-gradient-warning btn-sm px-2" title="Edit">
                                         <i class="mdi mdi-pencil"></i>
-                                    </button>
+                                    </a>
 
                                     {{-- Tombol Hapus --}}
-                                    <form action="{{ route('barang.destroy', $b->id_barang) }}"
+                                    <form action="{{ route('barang.destroy', $barang->id_barang) }}"
                                         method="POST" class="d-inline"
-                                        onsubmit="return confirm('Hapus barang {{ $b->nama }}?')">
+                                        onsubmit="return confirm('Hapus {{ $barang->nama }}?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                            class="btn btn-gradient-danger btn-sm px-2"
-                                            title="Hapus">
+                                        <button type="submit" class="btn btn-gradient-danger btn-sm px-2" title="Hapus">
                                             <i class="mdi mdi-delete"></i>
                                         </button>
                                     </form>
-
                                 </td>
                             </tr>
-
-                            {{-- ── Modal Edit (per baris) ── --}}
-                            <div class="modal fade" id="modalEdit{{ $b->id_barang }}" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-gradient-warning text-white">
-                                            <h5 class="modal-title">
-                                                <i class="mdi mdi-pencil me-1"></i> Edit Barang
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white"
-                                                data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <form action="{{ route('barang.update', $b->id_barang) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label class="form-label fw-semibold">ID Barang</label>
-                                                    <input type="text" class="form-control bg-light"
-                                                        value="{{ $b->id_barang }}" readonly>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label fw-semibold">Nama Barang</label>
-                                                    <input type="text" name="nama" class="form-control"
-                                                        value="{{ $b->nama }}" required maxlength="50">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label fw-semibold">Harga (Rp)</label>
-                                                    <input type="number" name="harga" class="form-control"
-                                                        value="{{ $b->harga }}" required min="0">
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light"
-                                                    data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-gradient-primary">
-                                                    <i class="mdi mdi-content-save me-1"></i> Simpan
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- ── End Modal Edit ── --}}
 
                             @empty
                             <tr>
@@ -144,65 +90,6 @@
         </div>
     </div>
 </div>
-
-{{-- ── Modal Tambah Barang ── --}}
-<div class="modal fade" id="modalTambah" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-gradient-primary text-white">
-                <h5 class="modal-title">
-                    <i class="mdi mdi-plus-circle me-1"></i> Tambah Barang Baru
-                </h5>
-                <button type="button" class="btn-close btn-close-white"
-                    data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('barang.store') }}" method="POST">
-                @csrf
-                <div class="modal-body">
-
-                    <div class="alert alert-info py-2 small mb-3">
-                        <i class="mdi mdi-information-outline me-1"></i>
-                        <strong>ID Barang</strong> digenerate otomatis oleh sistem
-                        (format <code>YYMMDDSQ</code>).
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Nama Barang <span class="text-danger">*</span></label>
-                        <input type="text" name="nama"
-                            class="form-control @error('nama') is-invalid @enderror"
-                            placeholder="Contoh: Pensil 2B"
-                            required maxlength="50"
-                            value="{{ old('nama') }}">
-                        @error('nama')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Harga (Rp) <span class="text-danger">*</span></label>
-                        <input type="number" name="harga"
-                            class="form-control @error('harga') is-invalid @enderror"
-                            placeholder="Contoh: 5000"
-                            required min="0"
-                            value="{{ old('harga') }}">
-                        @error('harga')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light"
-                        data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-gradient-primary">
-                        <i class="mdi mdi-content-save me-1"></i> Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 @endsection
 
 @push('scripts')
@@ -234,11 +121,6 @@
                 targets: 4
             }] // kolom Aksi tidak sortable
         });
-
-        // Buka kembali modal Tambah jika ada error validasi
-        @if($errors - > any())
-            (new bootstrap.Modal(document.getElementById('modalTambah'))).show();
-        @endif
     });
 </script>
 @endpush

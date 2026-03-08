@@ -30,14 +30,20 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/barang/cetak', [App\Http\Controllers\BarangController::class, 'cetakForm'])->name('barang.cetak.form');
     Route::post('/barang/cetak', [App\Http\Controllers\BarangController::class, 'cetakPdf'])->name('barang.cetak.pdf');
-    Route::resource('/barang', BarangController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('barang', BarangController::class)->only(['index', 'store', 'update', 'destroy', 'edit']);
+    Route::resource('barang', BarangController::class);
 
     // PDF Routes
     Route::get('/pdf', [BukuController::class, 'generatePdf'])->name('pdf.index');
     Route::get('/pdf/sertifikat', [BukuController::class, 'previewSertifikat'])->name('pdf.sertifikat.preview');
     Route::get('/pdf/undangan', [BukuController::class, 'previewUndangan'])->name('pdf.undangan.preview');
     Route::get('/pdf/sertifikat', [BukuController::class, 'downloadSertifikat'])->name('pdf.sertifikat');
-    Route::get('/pdf/undangan',   [BukuController::class, 'downloadUndangan'])->name('pdf.undangan');        
+    Route::get('/pdf/undangan',   [BukuController::class, 'downloadUndangan'])->name('pdf.undangan');  
+    
+    // Javascript
+    Route::get('/js/studi1', [App\Http\Controllers\JsStudiController::class, 'studi1'])->name('js.studi1');
+    Route::get('/js/studi2', [App\Http\Controllers\JsStudiController::class, 'studi2Plain'])->name('js.studi2_plain');
+    Route::get('/js/studi3', [App\Http\Controllers\JsStudiController::class, 'studi3Dt'])->name('js.studi3_dt');
+    Route::get('/js/studi4', [App\Http\Controllers\JsStudiController::class, 'studi4'])->name('js.studi4');
 });
-
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');

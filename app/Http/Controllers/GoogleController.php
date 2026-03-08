@@ -55,12 +55,12 @@ class GoogleController extends Controller
         // Simpan user ID di session untuk verifikasi OTP
         session(['otp_user_id' => $user->id]);
 
-        // Redirect ke halaman input OTP
+        // Redirect hlmn otp
         return redirect()->route('otp.show')
                          ->with('info', 'Kode OTP telah dikirim ke email ' . $user->email);
     }
 
-    // Generate OTP 6 karakter (huruf dan angka) dan simpan ke DB
+    // Generate OTP
     private function generateAndSaveOtp(User $user): string
     {
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -118,7 +118,7 @@ class GoogleController extends Controller
             return back()->with('error', 'Kode OTP sudah expired. Silakan login lagi.');
         }
 
-        // OTP valid, hapus OTP dari DB dan login user
+        // OTP valid
         $user->update([
             'otp' => null,
             'otp_expires_at' => null,

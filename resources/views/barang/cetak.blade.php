@@ -70,17 +70,17 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse($barang as $b)
+                                                @forelse($barang as $barang)
                                                 <tr class="baris-barang" style="cursor:pointer;">
                                                     <td>
                                                         <input type="checkbox"
                                                             name="ids[]"
-                                                            value="{{ $b->id_barang }}"
+                                                            value="{{ $barang->id_barang }}"
                                                             class="form-check-input chk-barang">
                                                     </td>
-                                                    <td><code>{{ $b->id_barang }}</code></td>
-                                                    <td>{{ $b->nama }}</td>
-                                                    <td>Rp {{ number_format($b->harga, 0, ',', '.') }}</td>
+                                                    <td><code>{{ $barang->id_barang }}</code></td>
+                                                    <td>{{ $barang->nama }}</td>
+                                                    <td>Rp {{ number_format($barang->harga, 0, ',', '.') }}</td>
                                                 </tr>
                                                 @empty
                                                 <tr>

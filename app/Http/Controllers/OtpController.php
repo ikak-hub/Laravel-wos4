@@ -44,7 +44,7 @@ class OtpController extends Controller
                              ->with('error', 'User tidak ditemukan.');
         }
 
-        // Cek apakah OTP sudah kadaluarsa
+        // Cek OTP sudah kadaluarsa apa belom
         if ($user->otp_expires_at && now()->isAfter($user->otp_expires_at)) {
             return back()->with('error', 'Kode OTP telah kadaluarsa. Silakan login kembali.');
         }
@@ -60,20 +60,14 @@ class OtpController extends Controller
             'otp_expires_at' => null,
         ]);
 
-        // Hapus session OTP
         session()->forget('otp_user_id');
 
-        // Login user
         Auth::login($user);
 
-        // Redirect ke dashboard
         return redirect()->route('dashboard')
                          ->with('success', 'Login berhasil! Selamat datang, ' . ($user->name ?? $user->email));
     }
 
-    /**
-     * Kirim ulang OTP
-     */
     public function resend()
     {
         $userId = session('otp_user_id');

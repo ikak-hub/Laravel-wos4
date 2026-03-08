@@ -39,7 +39,7 @@ return new class extends Migration
             \$\$ LANGUAGE plpgsql;
         ");
 
-        // 2. Buat trigger yang memanggil function di atas
+        // Buat trigger yang memanggil function di atas
         DB::unprepared("
             CREATE TRIGGER trigger_id_barang
             BEFORE INSERT ON barang

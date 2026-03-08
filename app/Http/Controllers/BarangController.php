@@ -11,76 +11,86 @@ class BarangController extends Controller
 {
     public function index()
     {
-        $barang = Barang::orderBy('timestamp', 'desc')->get();
+        $barang = Barang::latest('timestamp')->get();
         return view('barang.index', compact('barang'));
     }
+
+    public function create()
+    {
+        return view('barang.create');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'nama'  => 'required|string|max:50',
             'harga' => 'required|integer|min:0',
         ]);
-        DB::insert("INSERT INTO barang (nama, harga, timestamp) VALUES (?, ?, NOW())", [
-            $request->nama,
-            $request->harga,
-        ]);
+
+        // Tanpa id_barang → trigger PostgreSQL mengisi otomatis
+        DB::insert(
+            'INSERT INTO barang (nama, harga, "timestamp") VALUES (?, ?, NOW())',
+            [$request->nama, $request->harga]
+        );
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
     }
-    public function update(Request $request, string $id)
+
+    public function edit(Barang $barang)
+    {
+        return view('barang.edit', compact('barang'));
+    }
+
+    public function update(Request $request, Barang $barang)
     {
         $request->validate([
             'nama'  => 'required|string|max:50',
             'harga' => 'required|integer|min:0',
         ]);
 
-        $barang = Barang::findOrFail($id);
-        $barang->update([
-            'nama'  => $request->nama,
-            'harga' => $request->harga,
-        ]);
+        $barang->update(['nama' => $request->nama, 'harga' => $request->harga]);
 
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil diperbarui!');
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil diupdate!');
     }
-    public function destroy(string $id)
+
+    public function destroy(Barang $barang)
     {
-        Barang::findOrFail($id)->delete();
+        $barang->delete();
         return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
     }
 
     public function cetakForm()
     {
-        $barang = Barang::orderBy('timestamp', 'desc')->get();
+        $barang = Barang::latest('timestamp')->get();
         return view('barang.cetak', compact('barang'));
     }
 
-
-    // Generate PDF for label printing on TnJ No 108 paper (5 cols x 8 rows = 40 labels)
     public function cetakPdf(Request $request)
     {
-        $request->validate([
-            'ids'    => 'required|array|min:1',
-            'ids.*'  => 'exists:barang,id_barang',
+        $validated = $request->validate([
             'start_x' => 'required|integer|min:1|max:5',
             'start_y' => 'required|integer|min:1|max:8',
+            'ids'     => 'required|array|min:1',
+            'ids.*'   => 'required|string|exists:barang,id_barang',
         ]);
 
-        $selectedIds = $request->ids;
-        $barang = Barang::whereIn('id_barang', $selectedIds)->get()->keyBy('id_barang');
+        $map   = Barang::whereIn('id_barang', $validated['ids'])->get()->keyBy('id_barang');
+        $items = collect($validated['ids'])
+            ->map(fn($id) => $map[$id] ?? null)->filter()
+            ->map(fn($barang)  => [
+                'id_barang' => $barang->id_barang,
+                'nama'      => $barang->nama,
+                'harga'     => $barang->harga,
+                'timestamp' => $barang->timestamp,
+            ])->values()->toArray();
 
-        // Reorder by selected order
-        $selectedBarang = collect($selectedIds)->map(fn($id) => $barang[$id])->filter();
+        $start_x = (int) $validated['start_x'];
+        $start_y = (int) $validated['start_y'];
 
-        $startX = (int) $request->start_x; // column 1-5
-        $startY = (int) $request->start_y; // row 1-8
-
-        // Convert to 0-based linear index
-        $startIndex = ($startY - 1) * 5 + ($startX - 1);
-
-        $pdf = Pdf::loadView('barang.pdf_label', [
-            'barang'    => $selectedBarang,
-            'startIndex' => $startIndex,
-        ])->setPaper('a4', 'portrait');
+        // Ukuran kertas TnJ No. 108: 222mm × 185mm → dalam point
+        $pdf = Pdf::loadView('barang.pdf_label', compact('items', 'start_x', 'start_y'))
+                  ->setPaper([0, 0, 629.29, 524.41])
+                  ->setWarnings(false);
 
         return $pdf->stream('tag_harga_' . now()->format('YmdHis') . '.pdf');
     }

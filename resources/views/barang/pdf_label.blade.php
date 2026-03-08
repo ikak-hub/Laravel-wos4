@@ -1,223 +1,107 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 
 <head>
     <meta charset="UTF-8">
+    <title>Cetak Label</title>
+
     <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         @page {
-            size: A4 portrait;
+            size: 22.2cm 18.5cm;
             margin: 0;
         }
 
         body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
-            width: 790px;
-            height: 1120px;
-            background: #ffffff;
+            font-family: DejaVu Sans, Arial, sans-serif;
+            margin: 0;
+            font-size: 9px;
         }
 
-        .grid {
-            width: 790px;
-            height: 1120px;
-            display: block;
+        /* TABLE */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0.2cm 0.2cm;
+            /* jarak antar label */
+            table-layout: fixed;
         }
 
-        .row-label {
-            display: block;
-            width: 790px;
-            height: 140px;
-            overflow: hidden;
-        }
-
-        .cell {
-            display: inline-block;
-            width: 158px;
-            height: 140px;
-            vertical-align: top;
-            overflow: hidden;
-            border: 1px dashed #cccccc;
-        }
-
-        /* Label sudah terpakai (sebelum start index) */
-        .cell.used {
-            background: #f0f0f0;
-        }
-
-        .cell.used::after {
-            content: '';
-            display: block;
-            /* garis diagonal tanda terpakai */
-            border-top: 1px solid #cccccc;
-            margin: 68px 10px 0;
-        }
-
-        /* ── Sel kosong setelah semua label habis ── */
-        .cell.empty {
-            background: #ffffff;
-        }
-
-        /* ── Konten label aktif ── */
-        .label-inner {
-            margin: 3px;
-            width: 150px;
-            height: 133px;
-            border: 1.5px solid #2c3e50;
-            border-radius: 3px;
-            overflow: hidden;
-            background: #ffffff;
-            display: block;
-        }
-
-        /* Strip header biru tua */
-        .lbl-header {
-            background: #2c3e50;
-            color: #ecf0f1;
+        /* CELL */
+        td {
+            width: 3.8cm;
+            height: 1.8cm;
+            vertical-align: middle;
             text-align: center;
-            padding: 3px 2px 2px;
-            font-size: 7px;
-            letter-spacing: 0.5px;
-            height: 18px;
-            line-height: 1.4;
-            overflow: hidden;
+            box-sizing: border-box;
         }
 
-        /* Body label */
-        .lbl-body {
-            padding: 3px 4px 2px;
-            text-align: center;
+        /* LABEL BOX */
+        .lbl {
+            width: 100%;
         }
 
-        /* Garis pemisah */
-        .lbl-divider {
-            border: none;
-            border-top: 1px solid #bdc3c7;
-            margin: 3px auto;
-            width: 80%;
+        /* ISI */
+        .lbl-id {
+            font-size: 8px;
+            font-weight: bold;
+            margin-bottom: 2px;
         }
 
-        /* Nama barang */
         .lbl-nama {
             font-size: 8px;
             font-weight: bold;
-            color: #2c3e50;
-            line-height: 1.25;
-            word-wrap: break-word;
-            max-height: 34px;
-            overflow: hidden;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
-        /* Harga */
-        .lbl-harga {
-            font-size: 13px;
-            font-weight: bold;
-            color: #e74c3c;
-            line-height: 1.2;
-        }
-
-        .lbl-rp {
-            font-size: 7px;
-            color: #7f8c8d;
-            font-weight: normal;
-        }
-
-        /* Footer label kecil */
-        .lbl-footer {
+        .lbl-harga-text {
             font-size: 6px;
-            color: #bdc3c7;
-            text-align: center;
-            padding: 2px 0 1px;
-            margin-top: 2px;
+        }
+
+        .lbl-harga {
+            font-size: 11px;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
-    <?php
 
-    $cols      = 5;
-    $rows      = 8;
-    $total     = $cols * $rows;         
-    $list      = $barang->values();
-    $count     = $list->count();
+    <table>
+        @php
+        $cols = 5;
+        $rows = 8;
+        $startIdx = ($start_y - 1) * $cols + ($start_x - 1);
+        @endphp
 
-    $cellIdx   = 0;    // posisi sel saat ini (0-39)
-    $barangPos = 0;    // indeks ke dalam $list
-    ?>
+        @for ($row = 0; $row < $rows; $row++)
+            <tr>
+            @for ($col = 0; $col < $cols; $col++)
+                @php
+                $cellIndex=($row * $cols) + $col;
+                $rel=$cellIndex - $startIdx;
+                $b=($rel>= 0 && $rel < count($items)) ? $items[$rel] : null;
+                    @endphp
 
-    <div class="grid">
-
-        <?php for ($r = 0; $r < $rows; $r++): ?>
-            <div class="row-label">
-
-                <?php for ($c = 0; $c < $cols; $c++): ?>
-                    <?php
-                    $relPos = $cellIdx - $startIndex;   // < 0 : terpakai, 0+ : isi barang, >= $count : kosong
-
-                    if ($cellIdx < $startIndex):
-                        // ── Sel terpakai ───
-                    ?>
-                        <div class="cell used"></div>
-
-                    <?php elseif ($relPos >= 0 && $relPos < $count):
-                        // ── Sel berisi label ───
-                        $b = $list[$relPos];
-
-                        // Format harga: Rp 5.000
-                        $hargaFmt = number_format($b->harga, 0, ',', '.');
-
-                        $namaDisplay = mb_strlen($b->nama) > 26
-                            ? mb_substr($b->nama, 0, 24) . '…'
-                            : $b->nama;
-                    ?>
-                        <div class="cell">
-                            <div class="label-inner">
-
-                                {{-- Header: ID Barang --}}
-                                <div class="lbl-header">
-                                    ID: {{ $b->id_barang }}
-                                </div>
-
-                                {{-- Body --}}
-                                <div class="lbl-body">
-                                    <div class="lbl-nama">{{ $namaDisplay }}</div>
-                                    <hr class="lbl-divider">
-                                    <div class="lbl-harga">
-                                        <span class="lbl-rp">Rp </span>{{ $hargaFmt }}
-                                    </div>
-                                </div>
-
-                                {{-- Footer --}}
-                                <div class="lbl-footer">
-                                    {{ \Carbon\Carbon::parse($b->timestamp)->format('d/m/Y') }}
-                                </div>
-
-                            </div>
+                    <td>
+                    @if($b)
+                    <div class="lbl">
+                        <div class="lbl-id">{{ $b['id_barang'] }}</div>
+                        <div class="lbl-nama">
+                            {{ mb_strlen($b['nama']) > 22 
+                            ? mb_substr($b['nama'], 0, 20).'…' 
+                            : $b['nama'] }}
                         </div>
-
-                    <?php else:
-                        // ── Sel kosong ───
-                    ?>
-                        <div class="cell empty"></div>
-
-                    <?php endif; ?>
-
-                    <?php $cellIdx++; ?>
-                <?php endfor; // kolom 
-                ?>
-
-            </div>{{-- /.row-label --}}
-        <?php endfor; // baris 
-        ?>
-
-    </div>{{-- /.grid --}}
+                        <div class="lbl-harga-text">Harga</div>
+                        <div class="lbl-harga">
+                            Rp {{ number_format($b['harga'], 0, ',', '.') }}
+                        </div>
+                    </div>
+                    @endif
+                    </td>
+                    @endfor
+                    </tr>
+                    @endfor
+    </table>
 
 </body>
 
