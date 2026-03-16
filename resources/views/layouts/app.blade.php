@@ -22,7 +22,6 @@
     <!-- inject:css -->
     @include('layouts.stylepage')
     <!-- endinject -->
-
     @yield('header')
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
 </head>
@@ -60,5 +59,6 @@
     <!-- inject:js -->
     @include('layouts.javascriptpage')
     <!-- endinject -->
-    <!-- </body>
-</html> -->
+    @stack('scripts')
+    </body>
+</html>

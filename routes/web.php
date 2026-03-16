@@ -40,10 +40,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pdf/sertifikat', [BukuController::class, 'downloadSertifikat'])->name('pdf.sertifikat');
     Route::get('/pdf/undangan',   [BukuController::class, 'downloadUndangan'])->name('pdf.undangan');  
     
-    // Javascript
+    // Javascript studi kasus
     Route::get('/js/studi1', [App\Http\Controllers\JsStudiController::class, 'studi1'])->name('js.studi1');
     Route::get('/js/studi2', [App\Http\Controllers\JsStudiController::class, 'studi2Plain'])->name('js.studi2_plain');
     Route::get('/js/studi3', [App\Http\Controllers\JsStudiController::class, 'studi3Dt'])->name('js.studi3_dt');
     Route::get('/js/studi4', [App\Http\Controllers\JsStudiController::class, 'studi4'])->name('js.studi4');
-});
+
+    // AJAX Studi Kasus 
+    // SK 1 – Cascading Wilayah
+    Route::get('/ajax/wilayah',                     [App\Http\Controllers\AjaxStudiController::class, 'wilayah'])->name('ajax.wilayah');
+    Route::get('/ajax/wilayah/provinsi',             [App\Http\Controllers\AjaxStudiController::class, 'getProvinsi'])->name('ajax.wilayah.provinsi');
+    Route::get('/ajax/wilayah/kota/{provinsiId}',    [App\Http\Controllers\AjaxStudiController::class, 'getKota'])->name('ajax.wilayah.kota');
+    Route::get('/ajax/wilayah/kecamatan/{kotaId}',   [App\Http\Controllers\AjaxStudiController::class, 'getKecamatan'])->name('ajax.wilayah.kecamatan');
+    Route::get('/ajax/wilayah/kelurahan/{kecId}',    [App\Http\Controllers\AjaxStudiController::class, 'getKelurahan'])->name('ajax.wilayah.kelurahan');
+ 
+    // SK 2 – Point of Sales
+    Route::get('/ajax/pos',              [App\Http\Controllers\AjaxStudiController::class, 'pos'])->name('ajax.pos');
+    Route::get('/ajax/pos/cari/{kode}',  [App\Http\Controllers\AjaxStudiController::class, 'cariBarang'])->name('ajax.pos.cari');
+    Route::post('/ajax/pos/bayar',       [App\Http\Controllers\AjaxStudiController::class, 'bayar'])->name('ajax.pos.bayar');
+
+    });
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');

@@ -76,6 +76,29 @@
       </div>
     </li>
     {{-- ─────────────────────────────────────────────────────── --}}
-
+    {{-- ── AJAX Studi Kasus ─────────────────────────────── --}}
+    <li class="nav-item {{ Route::is('ajax.*') ? 'active' : '' }}">
+      <a class="nav-link" data-bs-toggle="collapse" href="#ajaxStudiMenu"
+         aria-expanded="{{ Route::is('ajax.*') ? 'true' : 'false' }}">
+        <span class="menu-title">AJAX Studi Kasus</span>
+        <i class="mdi mdi-web menu-icon"></i>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse {{ Route::is('ajax.*') ? 'show' : '' }}" id="ajaxStudiMenu">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('ajax.wilayah') ? 'active' : '' }}" href="{{ route('ajax.wilayah') }}">
+              SK 1 – Cascading Wilayah
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('ajax.pos') ? 'active' : '' }}" href="{{ route('ajax.pos') }}">
+              SK 2 – Point of Sales
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    {{-- ─────────────────────────────────────────────────── --}}
   </ul>
 </nav>
