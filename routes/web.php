@@ -9,6 +9,11 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\KantinController;
+use App\Http\Controllers\VendorController;
+use App\Http\Middleware\CheckVendorSession;
+
+
 
 
 Route::get('/', fn () => redirect()->route('login'));
@@ -17,11 +22,42 @@ Auth::routes();
 Route::get('/auth/google', [App\Http\Controllers\GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [App\Http\Controllers\GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
+
 Route::middleware('guest')->group(function () {
     Route::get('/otp', [App\Http\Controllers\GoogleController::class, 'showOtpForm'])->name('otp.show');
     Route::post('/otp/verify', [App\Http\Controllers\GoogleController::class, 'verifyOtp'])->name('otp.verify');
     Route::get('/otp/resend', [App\Http\Controllers\OtpController::class, 'resend'])->name('otp.resend');   
-});     
+});  
+
+Route::prefix('kantin')->name('kantin.')->group(function () {
+    Route::get('/',                    [App\Http\Controllers\KantinController::class, 'index'])->name('index');
+    Route::get('/menu/{idvendor}',     [App\Http\Controllers\KantinController::class, 'getMenu'])->name('menu');
+    Route::post('/order',              [App\Http\Controllers\KantinController::class, 'createOrder'])->name('order');
+    Route::get('/check/{idpesanan}',   [App\Http\Controllers\KantinController::class, 'checkPayment'])->name('check');
+});
+
+// Midtrans Notification Webhook (exclude CSRF) 
+Route::post('/midtrans/notification',[App\Http\Controllers\KantinController::class, 'notification'])
+    ->name('midtrans.notification')
+    ->withoutMiddleware([App\Http\Middleware\VerifyCsrfToken::class]);
+
+// Vendor Panel 
+Route::prefix('kantor')->name('kantor.')->group(function () {
+    // Login (public)
+    Route::get('/login',  [App\Http\Controllers\VendorController::class, 'showLogin'])->name('login');
+    Route::post('/login', [App\Http\Controllers\VendorController::class, 'login'])->name('login.post');
+    Route::get('/logout', [App\Http\Controllers\VendorController::class, 'logout'])->name('logout');
+
+    // Protected (cek session vendor_id)
+    Route::middleware([CheckVendorSession::class])->group(function () {
+        Route::get('/dashboard',        [App\Http\Controllers\VendorController::class, 'dashboard'])->name('dashboard');
+        Route::get('/menu',             [App\Http\Controllers\VendorController::class, 'menuIndex'])->name('menu');
+        Route::post('/menu',            [App\Http\Controllers\VendorController::class, 'menuStore'])->name('menu.store');
+        Route::put('/menu/{id}',        [App\Http\Controllers\VendorController::class, 'menuUpdate'])->name('menu.update');
+        Route::delete('/menu/{id}',     [App\Http\Controllers\VendorController::class, 'menuDestroy'])->name('menu.destroy');
+        Route::get('/orders',           [App\Http\Controllers\VendorController::class, 'orders'])->name('orders');
+    });
+});
 
 Route::middleware(['auth'])->group(function () {
    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

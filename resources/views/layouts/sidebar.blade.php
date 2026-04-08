@@ -40,14 +40,14 @@
     <li class="nav-item">
       <a class="nav-link {{ Route::is('pdf.index') ? 'active' : '' }}" href="{{ route('pdf.index') }}">
         <span class="menu-title">PDF</span>
-        <i class="mdi mdi-file-pdf menu-icon"></i>
+        <i class="mdi mdi-file-document menu-icon"></i>
       </a>
     </li>
     {{-- ── JS Studi Kasus Menu ─────────────────────────────── --}}
     <li class="nav-item {{ Route::is('js.*') ? 'active' : '' }}">
       <a class="nav-link" data-bs-toggle="collapse" href="#jsStudiMenu" aria-expanded="{{ Route::is('js.*') ? 'true' : 'false' }}">
         <span class="menu-title">JS Studi Kasus</span>
-        <i class="mdi mdi-code-tags menu-icon"></i>
+        <i class="mdi mdi-code-folder menu-icon"></i>
         <i class="menu-arrow"></i>
       </a>
       <div class="collapse {{ Route::is('js.*') ? 'show' : '' }}" id="jsStudiMenu">
@@ -79,9 +79,9 @@
     {{-- ── AJAX Studi Kasus ─────────────────────────────── --}}
     <li class="nav-item {{ Route::is('ajax.*') ? 'active' : '' }}">
       <a class="nav-link" data-bs-toggle="collapse" href="#ajaxStudiMenu"
-         aria-expanded="{{ Route::is('ajax.*') ? 'true' : 'false' }}">
+        aria-expanded="{{ Route::is('ajax.*') ? 'true' : 'false' }}">
         <span class="menu-title">AJAX Studi Kasus</span>
-        <i class="mdi mdi-web menu-icon"></i>
+        <i class="mdi mdi-code-folder menu-icon"></i>
         <i class="menu-arrow"></i>
       </a>
       <div class="collapse {{ Route::is('ajax.*') ? 'show' : '' }}" id="ajaxStudiMenu">
@@ -100,5 +100,18 @@
       </div>
     </li>
     {{-- ─────────────────────────────────────────────────── --}}
-  </ul>
+  {{-- ── Payment Gateway ─────────────────────────────── --}}
+  <li class="nav-item">
+    <a class="nav-link" href="{{ route('kantin.index') }}">
+      <span class="menu-title">Kantin Online</span>
+      <i class="mdi mdi-food menu-icon"></i>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{{ route('kantor.login') }}">
+      <span class="menu-title">Vendor Panel</span>
+      <i class="mdi mdi-store menu-icon"></i>
+    </a>
+  </li>
+    </ul>
 </nav>
