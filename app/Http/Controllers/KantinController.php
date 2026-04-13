@@ -126,12 +126,6 @@ class KantinController extends Controller
                 'qr_code'    => 'data:image/png;base64,' . $qrBase64,  
             ]);
 
-            return response()->json([
-                'status'     => 'success',
-                'snap_token' => $snapToken,
-                'guest_name' => $guestName,
-                'idpesanan'  => $pesanan->idpesanan,
-            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

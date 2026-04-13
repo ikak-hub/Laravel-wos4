@@ -363,7 +363,7 @@
                                 $('#guestNameDisplay').text(res.guest_name);
 
                                 if (res.qr_code) {
-                                    $('#qrCodeImg').attr('src', 'data:image/png;base64,' + res.qr_code);
+                                    $('#qrCodeImg').attr('src', res.qr_code);
                                     $('#qrCodeContainer').show();
                                 }
                                 new bootstrap.Modal(document.getElementById('modalSukses')).show();
