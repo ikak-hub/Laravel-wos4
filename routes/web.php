@@ -31,15 +31,13 @@ Route::middleware('guest')->group(function () {
 
 Route::prefix('kantin')->name('kantin.')->group(function () {
     Route::get('/',                    [App\Http\Controllers\KantinController::class, 'index'])->name('index');
-    Route::get('/menu/{idvendor}',     [App\Http\Controllers\KantinController::class, 'getMenu'])->name('menu');
+    Route::get('/menu/{idvendor}',     [App\Http\Controllers\KantinController::class, 'getMenus'])->name('menu');
     Route::post('/order',              [App\Http\Controllers\KantinController::class, 'createOrder'])->name('order');
     Route::get('/check/{idpesanan}',   [App\Http\Controllers\KantinController::class, 'checkPayment'])->name('check');
 });
 
 // Midtrans Notification Webhook (exclude CSRF) 
-Route::post('/midtrans/notification',[App\Http\Controllers\KantinController::class, 'notification'])
-    ->name('midtrans.notification')
-    ->withoutMiddleware([App\Http\Middleware\VerifyCsrfToken::class]);
+Route::post('/midtrans/notification',[KantinController::class, 'notification'])->name('midtrans.notification');
 
 // Vendor Panel 
 Route::prefix('kantor')->name('kantor.')->group(function () {
@@ -57,6 +55,14 @@ Route::prefix('kantor')->name('kantor.')->group(function () {
         Route::delete('/menu/{id}',     [App\Http\Controllers\VendorController::class, 'menuDestroy'])->name('menu.destroy');
         Route::get('/orders',           [App\Http\Controllers\VendorController::class, 'orders'])->name('orders');
     });
+});
+// Customer
+Route::prefix('customer')->name('customer.')->group(function () {
+    Route::get('/',             [App\Http\Controllers\CustomerController::class, 'index'])->name('index');
+    Route::get('/tambah-blob',  [App\Http\Controllers\CustomerController::class, 'createBlob'])->name('create.blob');
+    Route::post('/tambah-blob', [App\Http\Controllers\CustomerController::class, 'storeBlob'])->name('store.blob');
+    Route::get('/tambah-file',  [App\Http\Controllers\CustomerController::class, 'createFile'])->name('create.file');
+    Route::post('/tambah-file', [App\Http\Controllers\CustomerController::class, 'storeFile'])->name('store.file');
 });
 
 Route::middleware(['auth'])->group(function () {

@@ -8,6 +8,9 @@ use App\Models\Vendor;
 use App\Models\Menu;
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Encoding\Encoding;
 
 class KantinController extends Controller
 {
@@ -37,7 +40,7 @@ class KantinController extends Controller
             'idvendor'          => 'required|exists:vendors,idvendor',
             'total'             => 'required|integer|min:1',
             'items'             => 'required|array|min:1',
-            'items.*.idmenu'    => 'required|exists:menus,idmenu',
+            'items.*.idmenu'    => 'required|exists:menu,idmenu',
             'items.*.jumlah'    => 'required|integer|min:1',
             'items.*.harga'     => 'required|integer|min:0',
             'items.*.subtotal'  => 'required|integer|min:0',
@@ -45,8 +48,8 @@ class KantinController extends Controller
 
         // ── Generate nama guest (Guest_0000001, dst) ──────────────
         $lastGuest  = Pesanan::where('nama', 'like', 'Guest_%')
-                        ->orderBy('idpesanan', 'desc')
-                        ->value('nama');
+            ->orderBy('idpesanan', 'desc')
+            ->value('nama');
         $nextNum    = 1;
         if ($lastGuest) {
             $nextNum = (int) substr($lastGuest, 6) + 1;
@@ -93,8 +96,13 @@ class KantinController extends Controller
                     'first_name' => $guestName,
                 ],
                 'enabled_payments' => [
-                    'bca_va', 'bni_va', 'bri_va', 'permata_va',
-                    'other_va', 'gopay', 'qris',
+                    'bca_va',
+                    'bni_va',
+                    'bri_va',
+                    'permata_va',
+                    'other_va',
+                    'gopay',
+                    'qris',
                 ],
             ];
 
@@ -102,6 +110,21 @@ class KantinController extends Controller
             $pesanan->update(['snap_token' => $snapToken]);
 
             DB::commit();
+            // Generate QR Code
+            $qrCode = new QrCode($orderId);
+            $writer = new PngWriter();
+            $result = $writer->write($qrCode);
+
+            // Kirim base64 QR code ke frontend
+            $qrBase64 = base64_encode($result->getString());
+
+            return response()->json([
+                'status'     => 'success',
+                'snap_token' => $snapToken,
+                'guest_name' => $guestName,
+                'idpesanan'  => $pesanan->idpesanan,
+                'qr_code'    => 'data:image/png;base64,' . $qrBase64,  
+            ]);
 
             return response()->json([
                 'status'     => 'success',
@@ -109,7 +132,6 @@ class KantinController extends Controller
                 'guest_name' => $guestName,
                 'idpesanan'  => $pesanan->idpesanan,
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -120,40 +142,41 @@ class KantinController extends Controller
     }
 
     // ── POST: Webhook Midtrans (update status bayar) ────────────────
+
     public function notification(Request $request)
     {
         \Midtrans\Config::$serverKey    = config('midtrans.server_key');
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
+        \Midtrans\Config::$isProduction = false;
+        \Midtrans\Config::$isSanitized  = true;
+        \Midtrans\Config::$is3ds        = true;
 
-        try {
-            $notification        = new \Midtrans\Notification();
-            $transactionStatus   = $notification->transaction_status;
-            $orderId             = $notification->order_id;
-            $paymentType         = $notification->payment_type;
-            $fraudStatus         = $notification->fraud_status ?? '';
+        $notification = new \Midtrans\Notification();
 
-            $pesanan = Pesanan::where('midtrans_order_id', $orderId)->first();
-            if (!$pesanan) {
-                return response()->json(['message' => 'Order not found'], 404);
-            }
+        $orderId     = $notification->order_id;
+        $transStatus = $notification->transaction_status;
+        $fraudStatus = $notification->fraud_status;
+        $paymentType = $notification->payment_type;
 
-            if (in_array($transactionStatus, ['capture', 'settlement'])) {
-                if ($fraudStatus === 'accept' || empty($fraudStatus)) {
-                    $pesanan->update([
-                        'status_bayar' => 1,            // LUNAS
-                        'metode_bayar' => $paymentType,
-                    ]);
-                }
-            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
-                $pesanan->update(['status_bayar' => 2]);  // Batal
-            }
+        // Ambil idpesanan dari order_id (format: KANTIN-{timestamp}-{idpesanan})
+        $idPesanan = last(explode('-', $orderId));
 
-            return response()->json(['status' => 'OK']);
+        $pesanan = Pesanan::find($idPesanan);
+        if (!$pesanan) return response('Not found', 404);
 
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        if ($transStatus == 'capture' && $fraudStatus == 'accept') {
+            $pesanan->status_bayar = 1;
+            $pesanan->metode_bayar = $paymentType;
+        } elseif ($transStatus == 'settlement') {
+            $pesanan->status_bayar = 1;
+            $pesanan->metode_bayar = $paymentType;
+        } elseif (in_array($transStatus, ['cancel', 'deny', 'expire'])) {
+            $pesanan->status_bayar = 0;
         }
+
+        $pesanan->save();
+        return response('OK', 200);
     }
+
 
     // ── GET: Cek status bayar (polling dari frontend) ───────────────
     public function checkPayment($idpesanan)

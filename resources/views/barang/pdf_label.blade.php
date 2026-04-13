@@ -61,6 +61,11 @@
             font-size: 11px;
             font-weight: bold;
         }
+
+        .lbl-barcode svg{
+        max-width: 100%;
+        height: 25px;  
+        }
     </style>
 </head>
 
@@ -85,7 +90,9 @@
                     <td>
                     @if($b)
                     <div class="lbl">
-                        <div class="lbl-id">{{ $b['id_barang'] }}</div>
+                        <div class="lbl-barcode">
+                            {!! DNS1D::getBarcodeHTML($b['id_barang'], 'C128', 1.2, 25) !!}</div>
+                            <div class="lbl-id">{{ $b['id_barang'] }}</div>
                         <div class="lbl-nama">
                             {{ mb_strlen($b['nama']) > 22 
                             ? mb_substr($b['nama'], 0, 20).'…' 

@@ -122,5 +122,10 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+    // providers:
+    Milon\Barcode\BarcodeServiceProvider::class,
 
+    // aliases:
+    'DNS1D' => Milon\Barcode\Facades\DNS1D::class,
+    'DNS2D' => Milon\Barcode\Facades\DNS2D::class,
 ];

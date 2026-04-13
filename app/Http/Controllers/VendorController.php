@@ -145,6 +145,6 @@ class VendorController extends Controller
             ->latest()
             ->get();
 
-        return view('kantor.orders', compact('orders', 'vendor'));
+        return view('kantor.order', compact('orders', 'vendor'));
     }
 }

@@ -43,7 +43,6 @@
         <i class="mdi mdi-file-document menu-icon"></i>
       </a>
     </li>
-    {{-- ── JS Studi Kasus Menu ─────────────────────────────── --}}
     <li class="nav-item {{ Route::is('js.*') ? 'active' : '' }}">
       <a class="nav-link" data-bs-toggle="collapse" href="#jsStudiMenu" aria-expanded="{{ Route::is('js.*') ? 'true' : 'false' }}">
         <span class="menu-title">JS Studi Kasus</span>
@@ -75,8 +74,6 @@
         </ul>
       </div>
     </li>
-    {{-- ─────────────────────────────────────────────────────── --}}
-    {{-- ── AJAX Studi Kasus ─────────────────────────────── --}}
     <li class="nav-item {{ Route::is('ajax.*') ? 'active' : '' }}">
       <a class="nav-link" data-bs-toggle="collapse" href="#ajaxStudiMenu"
         aria-expanded="{{ Route::is('ajax.*') ? 'true' : 'false' }}">
@@ -99,19 +96,41 @@
         </ul>
       </div>
     </li>
-    {{-- ─────────────────────────────────────────────────── --}}
-  {{-- ── Payment Gateway ─────────────────────────────── --}}
-  <li class="nav-item">
-    <a class="nav-link" href="{{ route('kantin.index') }}">
-      <span class="menu-title">Kantin Online</span>
-      <i class="mdi mdi-food menu-icon"></i>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="{{ route('kantor.login') }}">
-      <span class="menu-title">Vendor Panel</span>
-      <i class="mdi mdi-store menu-icon"></i>
-    </a>
-  </li>
-    </ul>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('kantin.index') }}">
+        <span class="menu-title">Kantin Online</span>
+        <i class="mdi mdi-food menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ route('kantor.login') }}">
+        <span class="menu-title">Vendor Panel</span>
+        <i class="mdi mdi-store menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item {{ Route::is('customer.*') ? 'active' : '' }}">
+      <a class="nav-link" data-bs-toggle="collapse" href="#customerMenu"
+        aria-expanded="{{ Route::is('customer.*') ? 'true' : 'false' }}">
+        <span class="menu-title">Customer</span>
+        <i class="mdi mdi-account-group menu-icon"></i>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse {{ Route::is('customer.*') ? 'show' : '' }}" id="customerMenu">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('customer.index') ? 'active' : '' }}"
+              href="{{ route('customer.index') }}">Data Customer</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('customer.create.blob') ? 'active' : '' }}"
+              href="{{ route('customer.create.blob') }}">Tambah Customer 1</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ Route::is('customer.create.file') ? 'active' : '' }}"
+              href="{{ route('customer.create.file') }}">Tambah Customer 2</a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  </ul>
 </nav>
