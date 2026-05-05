@@ -11,7 +11,7 @@ use App\Models\Pesanan;
 
 class VendorController extends Controller
 {
-    // ── Auth ──────────────────────────────────────────────────────
+    //Auth
     public function showLogin()
     {
         if (session('vendor_id')) {
@@ -47,7 +47,7 @@ class VendorController extends Controller
         return redirect()->route('kantor.login');
     }
 
-    // ── Dashboard ─────────────────────────────────────────────────
+    // Dashboard
     public function dashboard()
     {
         $vendor          = Vendor::findOrFail(session('vendor_id'));
@@ -60,7 +60,7 @@ class VendorController extends Controller
         ));
     }
 
-    // ── Menu Management ───────────────────────────────────────────
+    // Menu Management
     public function menuIndex()
     {
         $vendor = Vendor::findOrFail(session('vendor_id'));
@@ -135,7 +135,7 @@ class VendorController extends Controller
             ->with('success', 'Menu berhasil dihapus!');
     }
 
-    // ── Pesanan Lunas ─────────────────────────────────────────────
+    // Pesanan Lunas
     public function orders()
     {
         $vendor = Vendor::findOrFail(session('vendor_id'));
@@ -148,21 +148,13 @@ class VendorController extends Controller
         return view('kantor.order', compact('orders', 'vendor'));
     }
 
-    // ── QR Code Scanner ───────────────────────────────────────────
-
-    /**
-     * Halaman scan QR customer.
-     */
+    // Scan QR Code Pesanan (HALAMAN)
     public function scanPage()
     {
         return view('kantor.scan');
     }
 
-    /**
-     * GET /kantor/scan-result/{orderId}
-     * Cari pesanan berdasarkan midtrans_order_id atau idpesanan,
-     * pastikan pesanan milik vendor yang login.
-     */
+    // Hasil Scan QR Code (midtrans_order_id atau idpesanan)
     public function scanResult($orderId)
     {
         $vendorId = session('vendor_id');

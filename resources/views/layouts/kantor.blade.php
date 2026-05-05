@@ -5,12 +5,10 @@
     <style>
         .navbar {
             background: linear-gradient(to right, #da8cff, #9a55ff) !important;
-            /* Warna khas Purple Admin */
         }
 
         .page-body-wrapper {
             padding-top: 70px;
-            /* Sesuaikan dengan tinggi navbar kamu */
         }
     </style>
     <meta charset="utf-8">

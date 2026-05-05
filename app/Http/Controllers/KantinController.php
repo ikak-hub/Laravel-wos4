@@ -14,14 +14,14 @@ use Endroid\QrCode\Encoding\Encoding;
 
 class KantinController extends Controller
 {
-    // ── Halaman utama customer ──────────────────────────────────────
+    // Halaman utama customer
     public function index()
     {
         $vendors = Vendor::all();
         return view('kantin.index', compact('vendors'));
     }
 
-    // ── AJAX: Ambil menu berdasarkan vendor ─────────────────────────
+    // JAX: Ambil menu berdasarkan vendor
     public function getMenus($idvendor)
     {
         $menus = Menu::where('idvendor', $idvendor)
@@ -33,7 +33,7 @@ class KantinController extends Controller
         ]);
     }
 
-    // ── POST: Buat pesanan + dapatkan Snap Token Midtrans ───────────
+    // POST: Buat pesanan + dapatkan Snap Token Midtrans 
     public function createOrder(Request $request)
     {
         $request->validate([
@@ -46,7 +46,7 @@ class KantinController extends Controller
             'items.*.subtotal'  => 'required|integer|min:0',
         ]);
 
-        // ── Generate nama guest (Guest_0000001, dst) ──────────────
+        // Generate nama guest (Guest_0000001, dst)
         $lastGuest  = Pesanan::where('nama', 'like', 'Guest_%')
             ->orderBy('idpesanan', 'desc')
             ->value('nama');
@@ -81,7 +81,7 @@ class KantinController extends Controller
                 ]);
             }
 
-            // ── Konfigurasi Midtrans ──────────────────────────────
+            // Konfigurasi Midtrans 
             \Midtrans\Config::$serverKey    = config('midtrans.server_key');
             \Midtrans\Config::$isProduction = config('midtrans.is_production');
             \Midtrans\Config::$isSanitized  = true;
@@ -130,7 +130,7 @@ class KantinController extends Controller
         }
     }
 
-    // ── POST: Webhook Midtrans (update status bayar) ────────────────
+    // POST: Webhook Midtrans (update status bayar)
     public function notification(Request $request)
     {
         \Midtrans\Config::$serverKey    = config('midtrans.server_key');
@@ -162,7 +162,7 @@ class KantinController extends Controller
         return response('OK', 200);
     }
 
-    // ── GET: Cek status bayar (polling dari frontend) ───────────────
+    // GET: Cek status bayar (polling dari frontend)
     public function checkPayment($idpesanan)
     {
         $pesanan = Pesanan::findOrFail($idpesanan);

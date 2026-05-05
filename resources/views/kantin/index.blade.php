@@ -160,12 +160,12 @@
         let vendorId = null;
         let vendorNama = '';
 
-        /* ─── Format Rupiah ──────────────────────────────────── */
+        // Format Rupiah
         function formatRp(n) {
             return 'Rp ' + parseInt(n).toLocaleString('id-ID');
         }
 
-        /* ─── Simpan ke localStorage ────────────────────────── */
+        // Menyimpan ke localStorage
         function saveOrderToLocalStorage(res, items, total) {
             try {
                 const orderData = {
@@ -197,7 +197,7 @@
             }
         }
 
-        /* ─── Hitung & update total ─────────────────────────── */
+        // MengHitung & update total
         function hitungTotal() {
             let total = 0;
             Object.values(keranjang).forEach(i => total += i.subtotal);
@@ -206,7 +206,7 @@
             return total;
         }
 
-        /* ─── Render keranjang ──────────────────────────────── */
+        // Render keranjang
         function renderKeranjang() {
             const $tbody = $('#tbodyKeranjang');
             $tbody.empty();
@@ -262,7 +262,7 @@
             hitungTotal();
         }
 
-        /* ─── Vendor berubah → load menus ──────────────────── */
+        // Vendor berubah → load menus
         $('#selVendor').on('change', function() {
             vendorId   = $(this).val();
             vendorNama = $(this).find(':selected').text();
@@ -307,7 +307,7 @@
             });
         });
 
-        /* ─── Menu berubah → tampilkan harga ───────────────── */
+        // Menu berubah → tampilkan harga
         $('#selMenu').on('change', function() {
             const opt   = $(this).find(':selected');
             const id    = $(this).val();
@@ -329,7 +329,7 @@
             }
         });
 
-        /* ─── Tambah ke keranjang ──────────────────────────── */
+        // Tambah ke keranjang
         $('#btnTambah').on('click', function() {
             const id      = $('#inpMenuId').val();
             const nama    = $('#inpMenuNama').val();
@@ -352,7 +352,7 @@
             $('#inpCatatan').val('');
         });
 
-        /* ─── Bayar Sekarang ────────────────────────────────── */
+        // Bayar Sekarang
         $('#btnBayar').on('click', function() {
             if (!vendorId) {
                 Swal.fire({ icon: 'warning', title: 'Pilih kantin dulu!', timer: 2000, showConfirmButton: false });
@@ -384,7 +384,7 @@
                     if (res.status === 'success') {
                         snap.pay(res.snap_token, {
                             onSuccess: function() {
-                                // ── Tampilkan QR di modal ──
+                                // menampilkan QR di modal
                                 $('#guestNameDisplay').text(res.guest_name);
 
                                 if (res.qr_code) {
@@ -392,10 +392,10 @@
                                     $('#qrCodeContainer').show();
                                 }
 
-                                // ── Simpan ke localStorage ──────────────────────────
+                                // disimpan ke localStorage untuk ditampilkan di halaman QR pesanan
                                 saveOrderToLocalStorage(res, items, total);
 
-                                // Tampilkan modal
+                                // menampilkan modal
                                 new bootstrap.Modal(document.getElementById('modalSukses')).show();
                                 keranjang = {};
                                 renderKeranjang();

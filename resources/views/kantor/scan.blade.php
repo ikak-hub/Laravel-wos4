@@ -124,7 +124,7 @@
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
-/* ── Beep via Web Audio API ── */
+// Beep via Web Audio API
 function playBeep(freq = 1050, dur = 120, vol = 0.4) {
     try {
         const ctx  = new (window.AudioContext || window.webkitAudioContext)();
@@ -157,7 +157,7 @@ $(function () {
     let lastScanned   = '';
     let selectedCamId = null;
 
-    /* ── Konfigurasi QR — area kotak (bukan persegi panjang seperti barcode) ── */
+    // Konfigurasi QR — area kotak (bukan persegi panjang seperti barcode)
     const qrConfig = {
         fps: 20,
         qrbox: function (w, h) {
@@ -169,7 +169,7 @@ $(function () {
         showTorchButtonIfSupported: false,
     };
 
-    /* ── Ambil daftar kamera — KUNCI FIX ── */
+    // daftar kamera yang tersedia
     Html5Qrcode.getCameras()
     .then(function (cameras) {
 
@@ -194,7 +194,7 @@ $(function () {
             });
         }
 
-        // ★ Pakai deviceId langsung — BUKAN { facingMode: "environment" }
+        // Pakai deviceId langsung — BUKAN { facingMode: "environment" }
         selectedCamId = cameras[0].id;
         startScanner();
     })
@@ -203,7 +203,7 @@ $(function () {
         console.error(err);
     });
 
-    /* ── Start scanner ── */
+    // Start scanner
     function startScanner() {
         if (isScanning) return Promise.resolve();
 
@@ -212,12 +212,12 @@ $(function () {
 
         setStatus('info', '<span class="spinner-border spinner-border-sm me-2"></span> Membuka kamera...');
 
-        // ★ selectedCamId (string) bukan { facingMode }
+        // selectedCamId (string) bukan { facingMode }
         return html5QrCode.start(
             selectedCamId,
             qrConfig,
             onScanSuccess,
-            function () {}  // abaikan error per-frame
+            function () {}  // mengabaikan error per-frame
         )
         .then(function () {
             isScanning = true;
@@ -231,7 +231,7 @@ $(function () {
         });
     }
 
-    /* ── Stop scanner ── */
+    // Stop scanner
     function stopScanner() {
         if (!html5QrCode || !isScanning) return Promise.resolve();
         return html5QrCode.stop()
@@ -243,7 +243,7 @@ $(function () {
         .catch(function (err) { console.warn('Stop error:', err); });
     }
 
-    /* ── Berhasil scan ── */
+    // Berhasil scan
     function onScanSuccess(decodedText) {
         if (decodedText === lastScanned) return;
         lastScanned = decodedText;

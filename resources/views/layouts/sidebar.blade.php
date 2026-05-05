@@ -37,15 +37,12 @@
         <i class="mdi mdi-tag-multiple menu-icon"></i>
       </a>
     </li>
-
-    {{-- ── BARU: Barcode Scanner ── --}}
     <li class="nav-item">
       <a class="nav-link {{ Route::is('scanner.barcode') ? 'active' : '' }}" href="{{ route('scanner.barcode') }}">
         <span class="menu-title">Barcode Scanner</span>
         <i class="mdi mdi-barcode-scan menu-icon"></i>
       </a>
     </li>
-
     <li class="nav-item">
       <a class="nav-link {{ Route::is('pdf.index') ? 'active' : '' }}" href="{{ route('pdf.index') }}">
         <span class="menu-title">PDF</span>

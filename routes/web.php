@@ -58,7 +58,7 @@ Route::prefix('kantor')->name('kantor.')->group(function () {
         Route::delete('/menu/{id}',     [App\Http\Controllers\VendorController::class, 'menuDestroy'])->name('menu.destroy');
         Route::get('/orders',           [App\Http\Controllers\VendorController::class, 'orders'])->name('orders');
         Route::get('/scan',                  [App\Http\Controllers\VendorController::class, 'scanPage'])->name('scan');
-        Route::get('/api/scan/{orderId}', [App\Http\Controllers\VendorController::class, 'scanResult'])->name('scan.result');
+        Route::get('/scan-result/{orderId}', [App\Http\Controllers\VendorController::class, 'scanResult'])->name('scan.result');
     });
 });
 // Customer
