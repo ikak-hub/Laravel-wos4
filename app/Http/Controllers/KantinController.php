@@ -96,13 +96,8 @@ class KantinController extends Controller
                     'first_name' => $guestName,
                 ],
                 'enabled_payments' => [
-                    'bca_va',
-                    'bni_va',
-                    'bri_va',
-                    'permata_va',
-                    'other_va',
-                    'gopay',
-                    'qris',
+                    'bca_va', 'bni_va', 'bri_va', 'permata_va',
+                    'other_va', 'gopay', 'qris',
                 ],
             ];
 
@@ -110,12 +105,11 @@ class KantinController extends Controller
             $pesanan->update(['snap_token' => $snapToken]);
 
             DB::commit();
-            // Generate QR Code
+
+            // Generate QR Code dari orderId (midtrans_order_id)
             $qrCode = new QrCode($orderId);
             $writer = new PngWriter();
             $result = $writer->write($qrCode);
-
-            // Kirim base64 QR code ke frontend
             $qrBase64 = base64_encode($result->getString());
 
             return response()->json([
@@ -123,7 +117,8 @@ class KantinController extends Controller
                 'snap_token' => $snapToken,
                 'guest_name' => $guestName,
                 'idpesanan'  => $pesanan->idpesanan,
-                'qr_code'    => 'data:image/png;base64,' . $qrBase64,  
+                'order_id'   => $orderId,   // ← ditambahkan untuk disimpan customer
+                'qr_code'    => 'data:image/png;base64,' . $qrBase64,
             ]);
 
         } catch (\Exception $e) {
@@ -136,7 +131,6 @@ class KantinController extends Controller
     }
 
     // ── POST: Webhook Midtrans (update status bayar) ────────────────
-
     public function notification(Request $request)
     {
         \Midtrans\Config::$serverKey    = config('midtrans.server_key');
@@ -151,10 +145,7 @@ class KantinController extends Controller
         $fraudStatus = $notification->fraud_status;
         $paymentType = $notification->payment_type;
 
-        // Ambil idpesanan dari order_id (format: KANTIN-{timestamp}-{idpesanan})
-        $idPesanan = last(explode('-', $orderId));
-
-        $pesanan = Pesanan::find($idPesanan);
+        $pesanan = Pesanan::where('midtrans_order_id', $orderId)->first();
         if (!$pesanan) return response('Not found', 404);
 
         if ($transStatus == 'capture' && $fraudStatus == 'accept') {
@@ -171,7 +162,6 @@ class KantinController extends Controller
         return response('OK', 200);
     }
 
-
     // ── GET: Cek status bayar (polling dari frontend) ───────────────
     public function checkPayment($idpesanan)
     {
@@ -180,5 +170,15 @@ class KantinController extends Controller
             'status_bayar' => $pesanan->status_bayar,
             'nama'         => $pesanan->nama,
         ]);
+    }
+    
+    // GET /kantin/pesanan
+    // Halaman QR Code Pesanan Customer.
+    // Data pesanan disimpan di localStorage browser,
+    // halaman ini hanya menyediakan tampilan HTML-nya.
+     
+    public function pesananPage()
+    {
+        return view('kantin.pesanan');
     }
 }

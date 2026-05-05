@@ -16,7 +16,7 @@ use App\Http\Middleware\CheckVendorSession;
 
 
 
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', fn() => redirect()->route('login'));
 
 Auth::routes();
 Route::get('/auth/google', [App\Http\Controllers\GoogleController::class, 'redirectToGoogle'])->name('auth.google');
@@ -26,18 +26,20 @@ Route::get('/auth/google/callback', [App\Http\Controllers\GoogleController::clas
 Route::middleware('guest')->group(function () {
     Route::get('/otp', [App\Http\Controllers\GoogleController::class, 'showOtpForm'])->name('otp.show');
     Route::post('/otp/verify', [App\Http\Controllers\GoogleController::class, 'verifyOtp'])->name('otp.verify');
-    Route::get('/otp/resend', [App\Http\Controllers\OtpController::class, 'resend'])->name('otp.resend');   
-});  
+    Route::get('/otp/resend', [App\Http\Controllers\OtpController::class, 'resend'])->name('otp.resend');
+});
 
 Route::prefix('kantin')->name('kantin.')->group(function () {
     Route::get('/',                    [App\Http\Controllers\KantinController::class, 'index'])->name('index');
     Route::get('/menu/{idvendor}',     [App\Http\Controllers\KantinController::class, 'getMenus'])->name('menu');
     Route::post('/order',              [App\Http\Controllers\KantinController::class, 'createOrder'])->name('order');
     Route::get('/check/{idpesanan}',   [App\Http\Controllers\KantinController::class, 'checkPayment'])->name('check');
+    // Halaman QR Code pesanan customer 
+    Route::get('/pesanan',             [App\Http\Controllers\KantinController::class, 'pesananPage'])->name('pesanan');
 });
 
 // Midtrans Notification Webhook (exclude CSRF) 
-Route::post('/midtrans/notification',[KantinController::class, 'notification'])->name('midtrans.notification');
+Route::post('/midtrans/notification', [KantinController::class, 'notification'])->name('midtrans.notification');
 
 // Vendor Panel 
 Route::prefix('kantor')->name('kantor.')->group(function () {
@@ -45,6 +47,7 @@ Route::prefix('kantor')->name('kantor.')->group(function () {
     Route::get('/login',  [App\Http\Controllers\VendorController::class, 'showLogin'])->name('login');
     Route::post('/login', [App\Http\Controllers\VendorController::class, 'login'])->name('login.post');
     Route::get('/logout', [App\Http\Controllers\VendorController::class, 'logout'])->name('logout');
+
 
     // Protected (cek session vendor_id)
     Route::middleware([CheckVendorSession::class])->group(function () {
@@ -54,6 +57,8 @@ Route::prefix('kantor')->name('kantor.')->group(function () {
         Route::put('/menu/{id}',        [App\Http\Controllers\VendorController::class, 'menuUpdate'])->name('menu.update');
         Route::delete('/menu/{id}',     [App\Http\Controllers\VendorController::class, 'menuDestroy'])->name('menu.destroy');
         Route::get('/orders',           [App\Http\Controllers\VendorController::class, 'orders'])->name('orders');
+        Route::get('/scan',                  [App\Http\Controllers\VendorController::class, 'scanPage'])->name('scan');
+        Route::get('/api/scan/{orderId}', [App\Http\Controllers\VendorController::class, 'scanResult'])->name('scan.result');
     });
 });
 // Customer
@@ -66,7 +71,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-   Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('kategori', KategoriController::class);
     Route::resource('buku', BukuController::class);
 
@@ -80,8 +85,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pdf/sertifikat', [BukuController::class, 'previewSertifikat'])->name('pdf.sertifikat.preview');
     Route::get('/pdf/undangan', [BukuController::class, 'previewUndangan'])->name('pdf.undangan.preview');
     Route::get('/pdf/sertifikat', [BukuController::class, 'downloadSertifikat'])->name('pdf.sertifikat');
-    Route::get('/pdf/undangan',   [BukuController::class, 'downloadUndangan'])->name('pdf.undangan');  
-    
+    Route::get('/pdf/undangan',   [BukuController::class, 'downloadUndangan'])->name('pdf.undangan');
+
     // Javascript studi kasus
     Route::get('/js/studi1', [App\Http\Controllers\JsStudiController::class, 'studi1'])->name('js.studi1');
     Route::get('/js/studi2', [App\Http\Controllers\JsStudiController::class, 'studi2Plain'])->name('js.studi2_plain');
@@ -95,11 +100,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ajax/wilayah/kota/{provinsiId}',    [App\Http\Controllers\AjaxStudiController::class, 'getKota'])->name('ajax.wilayah.kota');
     Route::get('/ajax/wilayah/kecamatan/{kotaId}',   [App\Http\Controllers\AjaxStudiController::class, 'getKecamatan'])->name('ajax.wilayah.kecamatan');
     Route::get('/ajax/wilayah/kelurahan/{kecId}',    [App\Http\Controllers\AjaxStudiController::class, 'getKelurahan'])->name('ajax.wilayah.kelurahan');
- 
+
     // SK 2 – Point of Sales
     Route::get('/ajax/pos',              [App\Http\Controllers\AjaxStudiController::class, 'pos'])->name('ajax.pos');
     Route::get('/ajax/pos/cari/{kode}',  [App\Http\Controllers\AjaxStudiController::class, 'cariBarang'])->name('ajax.pos.cari');
     Route::post('/ajax/pos/bayar',       [App\Http\Controllers\AjaxStudiController::class, 'bayar'])->name('ajax.pos.bayar');
 
-    });
+    // Barcode Scanner
+    Route::get('/scanner/barcode', [App\Http\Controllers\ScannerController::class, 'barcode'])->name('scanner.barcode');
+});
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');

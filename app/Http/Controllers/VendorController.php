@@ -147,4 +147,64 @@ class VendorController extends Controller
 
         return view('kantor.order', compact('orders', 'vendor'));
     }
+
+    // ── QR Code Scanner ───────────────────────────────────────────
+
+    /**
+     * Halaman scan QR customer.
+     */
+    public function scanPage()
+    {
+        return view('kantor.scan');
+    }
+
+    /**
+     * GET /kantor/scan-result/{orderId}
+     * Cari pesanan berdasarkan midtrans_order_id atau idpesanan,
+     * pastikan pesanan milik vendor yang login.
+     */
+    public function scanResult($orderId)
+    {
+        $vendorId = session('vendor_id');
+
+        // Cari berdasarkan midtrans_order_id terlebih dahulu
+        $pesanan = Pesanan::where('midtrans_order_id', $orderId)
+            ->where('idvendor', $vendorId)
+            ->with(['details.menu'])
+            ->first();
+
+        // Fallback: cari berdasarkan idpesanan (jika QR berisi numeric ID)
+        if (!$pesanan && is_numeric($orderId)) {
+            $pesanan = Pesanan::where('idpesanan', (int) $orderId)
+                ->where('idvendor', $vendorId)
+                ->with(['details.menu'])
+                ->first();
+        }
+
+        if (!$pesanan) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Pesanan tidak ditemukan atau bukan milik kantin Anda.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => [
+                'idpesanan'         => $pesanan->idpesanan,
+                'midtrans_order_id' => $pesanan->midtrans_order_id,
+                'nama'              => $pesanan->nama,
+                'total'             => $pesanan->total,
+                'status_bayar'      => $pesanan->status_bayar,
+                'metode_bayar'      => $pesanan->metode_bayar,
+                'details'           => $pesanan->details->map(fn($d) => [
+                    'nama_menu' => $d->menu->nama_menu ?? '(menu dihapus)',
+                    'jumlah'    => $d->jumlah,
+                    'harga'     => $d->harga,
+                    'subtotal'  => $d->subtotal,
+                    'catatan'   => $d->catatan,
+                ]),
+            ],
+        ]);
+    }
 }

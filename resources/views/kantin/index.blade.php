@@ -60,6 +60,13 @@
                     class="btn btn-gradient-success w-100" disabled>
                     <i class="mdi mdi-plus-circle me-1"></i> Tambah ke Keranjang
                 </button>
+
+                {{-- Link ke QR pesanan --}}
+                <div class="mt-3 text-center">
+                    <a href="{{ route('kantin.pesanan') }}" class="text-muted small">
+                        <i class="mdi mdi-qrcode me-1"></i> Lihat QR Pesanan Saya
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -121,14 +128,24 @@
                 <div id="qrCodeContainer" class="my-3" style="display:none;">
                     <p class="text-muted small mb-2">QR Code Pesanan:</p>
                     <img id="qrCodeImg" src="" alt="QR Code"
-                        style="width:160px;height:160px;border:1px solid #dee2e6;border-radius:8px;">
+                        style="width:180px;height:180px;border:2px solid #dee2e6;border-radius:12px;padding:6px;background:#fff;">
+                    <p class="text-success small mt-2 mb-0">
+                        <i class="mdi mdi-check-circle me-1"></i>
+                        QR Code tersimpan otomatis di perangkat Anda
+                    </p>
                 </div>
 
-                <p class="text-muted small mb-4">Tunjukkan nama ini kepada kasir untuk mengambil pesanan.</p>
-                <button type="button" class="btn btn-gradient-primary px-5"
-                    onclick="location.reload()">
-                    <i class="mdi mdi-refresh me-1"></i> Pesan Lagi
-                </button>
+                <p class="text-muted small mb-4">Tunjukkan QR Code ini kepada kasir untuk mengambil pesanan.</p>
+
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{{ route('kantin.pesanan') }}" class="btn btn-outline-primary px-4">
+                        <i class="mdi mdi-qrcode me-1"></i> Lihat QR Saya
+                    </a>
+                    <button type="button" class="btn btn-gradient-primary px-4"
+                        onclick="location.reload()">
+                        <i class="mdi mdi-refresh me-1"></i> Pesan Lagi
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -141,10 +158,43 @@
 
         let keranjang = {}; // { key: { key, idmenu, nama, harga, qty, subtotal, catatan } }
         let vendorId = null;
+        let vendorNama = '';
 
         /* ─── Format Rupiah ──────────────────────────────────── */
         function formatRp(n) {
             return 'Rp ' + parseInt(n).toLocaleString('id-ID');
+        }
+
+        /* ─── Simpan ke localStorage ────────────────────────── */
+        function saveOrderToLocalStorage(res, items, total) {
+            try {
+                const orderData = {
+                    orderId:    res.order_id || res.idpesanan,
+                    idpesanan:  res.idpesanan,
+                    guestName:  res.guest_name,
+                    qrCode:     res.qr_code,
+                    total:      total,
+                    vendorNama: vendorNama,
+                    items:      items.map(function(it) {
+                        // Coba ambil nama dari keranjang
+                        const kKey = Object.keys(keranjang).find(k => keranjang[k].idmenu === it.idmenu);
+                        return {
+                            idmenu:   it.idmenu,
+                            nama:     kKey ? keranjang[kKey].nama : ('Menu #' + it.idmenu),
+                            jumlah:   it.jumlah,
+                            subtotal: it.subtotal,
+                        };
+                    }),
+                    timestamp: new Date().toISOString(),
+                };
+
+                let saved = JSON.parse(localStorage.getItem('kantin_orders') || '[]');
+                saved.unshift(orderData);
+                if (saved.length > 20) saved = saved.slice(0, 20); // maks 20 riwayat
+                localStorage.setItem('kantin_orders', JSON.stringify(saved));
+            } catch (e) {
+                console.warn('Gagal simpan ke localStorage:', e);
+            }
         }
 
         /* ─── Hitung & update total ─────────────────────────── */
@@ -197,10 +247,7 @@
             $tbody.find('.qty-input').on('change', function() {
                 const key = $(this).data('key');
                 let qty = parseInt($(this).val()) || 1;
-                if (qty < 1) {
-                    qty = 1;
-                    $(this).val(1);
-                }
+                if (qty < 1) { qty = 1; $(this).val(1); }
                 keranjang[key].qty = qty;
                 keranjang[key].subtotal = keranjang[key].harga * qty;
                 renderKeranjang();
@@ -217,7 +264,8 @@
 
         /* ─── Vendor berubah → load menus ──────────────────── */
         $('#selVendor').on('change', function() {
-            vendorId = $(this).val();
+            vendorId   = $(this).val();
+            vendorNama = $(this).find(':selected').text();
             $('#selMenu').html('<option value="">-- Pilih Menu --</option>').prop('disabled', true);
             $('#inpHargaDisp').val('');
             $('#inpHargaVal').val('');
@@ -225,7 +273,6 @@
             $('#inpMenuNama').val('');
             $('#btnTambah').prop('disabled', true);
 
-            // Reset keranjang saat ganti vendor
             if (Object.keys(keranjang).length > 0) {
                 keranjang = {};
                 renderKeranjang();
@@ -262,10 +309,10 @@
 
         /* ─── Menu berubah → tampilkan harga ───────────────── */
         $('#selMenu').on('change', function() {
-            const opt = $(this).find(':selected');
-            const id = $(this).val();
+            const opt   = $(this).find(':selected');
+            const id    = $(this).val();
             const harga = opt.data('harga');
-            const nama = opt.data('nama');
+            const nama  = opt.data('nama');
 
             if (id) {
                 $('#inpHargaDisp').val(formatRp(harga));
@@ -284,33 +331,22 @@
 
         /* ─── Tambah ke keranjang ──────────────────────────── */
         $('#btnTambah').on('click', function() {
-            const id = $('#inpMenuId').val();
-            const nama = $('#inpMenuNama').val();
-            const harga = parseInt($('#inpHargaVal').val());
-            const qty = parseInt($('#inpJumlah').val()) || 1;
+            const id      = $('#inpMenuId').val();
+            const nama    = $('#inpMenuNama').val();
+            const harga   = parseInt($('#inpHargaVal').val());
+            const qty     = parseInt($('#inpJumlah').val()) || 1;
             const catatan = $('#inpCatatan').val().trim();
 
-            // Key unik: idmenu + catatan (supaya item sama beda catatan bisa dipisah)
             const key = id + '||' + catatan;
 
             if (keranjang[key]) {
-                keranjang[key].qty += qty;
+                keranjang[key].qty     += qty;
                 keranjang[key].subtotal = keranjang[key].harga * keranjang[key].qty;
             } else {
-                keranjang[key] = {
-                    key,
-                    idmenu: id,
-                    nama,
-                    harga,
-                    qty,
-                    subtotal: harga * qty,
-                    catatan
-                };
+                keranjang[key] = { key, idmenu: id, nama, harga, qty, subtotal: harga * qty, catatan };
             }
 
             renderKeranjang();
-
-            // Reset input
             $('#selMenu').val('').change();
             $('#inpJumlah').val(1);
             $('#inpCatatan').val('');
@@ -319,21 +355,16 @@
         /* ─── Bayar Sekarang ────────────────────────────────── */
         $('#btnBayar').on('click', function() {
             if (!vendorId) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Pilih kantin dulu!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                Swal.fire({ icon: 'warning', title: 'Pilih kantin dulu!', timer: 2000, showConfirmButton: false });
                 return;
             }
 
             const items = Object.values(keranjang).map(i => ({
-                idmenu: i.idmenu,
-                jumlah: i.qty,
-                harga: i.harga,
+                idmenu:   i.idmenu,
+                jumlah:   i.qty,
+                harga:    i.harga,
                 subtotal: i.subtotal,
-                catatan: i.catatan || '',
+                catatan:  i.catatan || '',
             }));
             const total = items.reduce((s, i) => s + i.subtotal, 0);
 
@@ -344,28 +375,27 @@
                 url: "{{ route('kantin.order') }}",
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({
-                    idvendor: vendorId,
-                    total,
-                    items
-                }),
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
+                data: JSON.stringify({ idvendor: vendorId, total, items }),
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                 success: function(res) {
                     $('#btnBayar').prop('disabled', false)
                         .html('<i class="mdi mdi-credit-card me-1"></i> Bayar Sekarang');
 
                     if (res.status === 'success') {
-                        // ── Buka Midtrans Snap ─────────────────────
                         snap.pay(res.snap_token, {
                             onSuccess: function() {
+                                // ── Tampilkan QR di modal ──
                                 $('#guestNameDisplay').text(res.guest_name);
 
                                 if (res.qr_code) {
                                     $('#qrCodeImg').attr('src', res.qr_code);
                                     $('#qrCodeContainer').show();
                                 }
+
+                                // ── Simpan ke localStorage ──────────────────────────
+                                saveOrderToLocalStorage(res, items, total);
+
+                                // Tampilkan modal
                                 new bootstrap.Modal(document.getElementById('modalSukses')).show();
                                 keranjang = {};
                                 renderKeranjang();
@@ -375,39 +405,25 @@
                                     icon: 'info',
                                     title: 'Menunggu Pembayaran',
                                     html: `Pesanan anda: <strong>${res.guest_name}</strong><br>
-                                        Selesaikan pembayaran sesuai instruksi yang diberikan.`,
+                                           Selesaikan pembayaran sesuai instruksi.`,
                                 });
                                 keranjang = {};
                                 renderKeranjang();
                             },
                             onError: function() {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Pembayaran Gagal',
-                                    text: 'Silakan coba lagi.'
-                                });
+                                Swal.fire({ icon: 'error', title: 'Pembayaran Gagal', text: 'Silakan coba lagi.' });
                             },
-                            onClose: function() {
-                                // Customer menutup popup tanpa bayar — tidak melakukan apa-apa
-                            }
+                            onClose: function() { /* customer tutup popup */ }
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: res.message
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: res.message });
                     }
                 },
                 error: function(xhr) {
                     $('#btnBayar').prop('disabled', false)
                         .html('<i class="mdi mdi-credit-card me-1"></i> Bayar Sekarang');
                     const msg = xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan server.';
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: msg
-                    });
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
                 }
             });
         });
