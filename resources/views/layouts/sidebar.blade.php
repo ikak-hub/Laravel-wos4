@@ -49,6 +49,12 @@
         <i class="mdi mdi-file-document menu-icon"></i>
       </a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link {{ Route::is('kunjungan.index') ? 'active' : '' }}" href="{{ route('kunjungan.index') }}">
+        <span class="menu-title">Kunjungan Toko</span>
+        <i class="mdi mdi-map-marker-radius menu-icon"></i>
+      </a>
+    </li>
     <li class="nav-item {{ Route::is('js.*') ? 'active' : '' }}">
       <a class="nav-link" data-bs-toggle="collapse" href="#jsStudiMenu" aria-expanded="{{ Route::is('js.*') ? 'true' : 'false' }}">
         <span class="menu-title">JS Studi Kasus</span>

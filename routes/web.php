@@ -108,5 +108,13 @@ Route::middleware(['auth'])->group(function () {
 
     // Barcode Scanner
     Route::get('/scanner/barcode', [App\Http\Controllers\ScannerController::class, 'barcode'])->name('scanner.barcode');
+
+    // Kunjungan Toko
+    Route::get('/kunjungan', [App\Http\Controllers\KunjunganTokoController::class, 'index'])->name('kunjungan.index');
+    Route::post('/kunjungan/toko', [App\Http\Controllers\KunjunganTokoController::class, 'storeToko'])->name('kunjungan.toko.store');
+    Route::get('/kunjungan/toko/{barcode}', [App\Http\Controllers\KunjunganTokoController::class, 'getToko'])->name('kunjungan.toko.get');
+    Route::get('/kunjungan/qrcode/{barcode}', [App\Http\Controllers\KunjunganTokoController::class, 'qrCode'])->name('kunjungan.qrcode');
+    Route::delete('/kunjungan/toko/{barcode}', [App\Http\Controllers\KunjunganTokoController::class, 'deleteToko'])->name('kunjungan.toko.delete'); 
+    
 });
 Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
