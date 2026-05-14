@@ -12,6 +12,7 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\KantinController;
 use App\Http\Controllers\VendorController;
 use App\Http\Middleware\CheckVendorSession;
+use App\Http\Controllers\AntrianController;
 
 
 
@@ -69,6 +70,24 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/tambah-file',  [App\Http\Controllers\CustomerController::class, 'createFile'])->name('create.file');
     Route::post('/tambah-file', [App\Http\Controllers\CustomerController::class, 'storeFile'])->name('store.file');
 });
+// ── Halaman Guest (daftar antrian) ──────────────────────────
+Route::get('/guest',            [AntrianController::class, 'guestPage'])->name('antrian.guest');
+Route::post('/antrian/daftar',  [AntrianController::class, 'register'])->name('antrian.register');
+Route::get('/antrian/tiket/{id}', [AntrianController::class, 'tiket'])->name('antrian.tiket');
+ 
+// ── Halaman Admin ────────────────────────────────────────────
+Route::get('/admin',  [AntrianController::class, 'adminPage'])->name('antrian.admin');
+Route::post('/admin/panggil',                    [AntrianController::class, 'panggil'])->name('antrian.panggil');
+Route::post('/admin/tandai-terlambat/{id}',      [AntrianController::class, 'tandaiTerlambat'])->name('antrian.tandaiTerlambat');
+Route::post('/admin/panggil-terlambat/{id}',     [AntrianController::class, 'panggilTerlambat'])->name('antrian.panggilTerlambat');
+Route::post('/admin/reset',                      [AntrianController::class, 'reset'])->name('antrian.reset');
+ 
+// ── Halaman Papan Antrian (layar publik) ─────────────────────
+Route::get('/papan', [AntrianController::class, 'papanPage'])->name('antrian.papan');
+ 
+// ── SSE Stream & API State ───────────────────────────────────
+Route::get('/sse/antrian',   [AntrianController::class, 'stream'])->name('antrian.stream');
+Route::get('/antrian/state', [AntrianController::class, 'getState'])->name('antrian.state');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

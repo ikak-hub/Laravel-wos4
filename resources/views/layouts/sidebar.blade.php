@@ -50,6 +50,18 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link {{ Route::is('antrian.index') || Route::is('antrian.papan') ? 'active' : '' }}" href="{{ route('antrian.index') }}">
+        <span class="menu-title">Sistem Antrian</span>
+        <i class="mdi mdi-format-list-numbered menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {{ Route::is('tiket.index') ? 'active' : '' }}" href="{{ route('tiket.index') }}">
+        <span class="menu-title">Tiket Antrian</span>
+        <i class="mdi mdi-ticket menu-icon"></i>
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link {{ Route::is('kunjungan.index') ? 'active' : '' }}" href="{{ route('kunjungan.index') }}">
         <span class="menu-title">Kunjungan Toko</span>
         <i class="mdi mdi-map-marker-radius menu-icon"></i>
