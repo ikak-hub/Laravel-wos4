@@ -50,23 +50,24 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ Route::is('antrian.index') || Route::is('antrian.papan') ? 'active' : '' }}" href="{{ route('antrian.index') }}">
+      <a class="nav-link {{ Route::is('antrian.admin') ? 'active' : '' }}" href="{{ route('antrian.admin') }}">
         <span class="menu-title">Sistem Antrian</span>
         <i class="mdi mdi-format-list-numbered menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ Route::is('tiket.index') ? 'active' : '' }}" href="{{ route('tiket.index') }}">
-        <span class="menu-title">Tiket Antrian</span>
-        <i class="mdi mdi-ticket menu-icon"></i>
+      <a class="nav-link {{ Route::is('antrian.guest') ? 'active' : '' }}" href="{{ route('antrian.guest') }}">
+        <span class="menu-title">Pendaftaran Antrian</span>
+        <i class="mdi mdi-account-plus menu-icon"></i>
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ Route::is('kunjungan.index') ? 'active' : '' }}" href="{{ route('kunjungan.index') }}">
-        <span class="menu-title">Kunjungan Toko</span>
-        <i class="mdi mdi-map-marker-radius menu-icon"></i>
+      <a class="nav-link {{ Route::is('antrian.papan') ? 'active' : '' }}" href="{{ route('antrian.papan') }}">
+        <span class="menu-title">Papan Antrian</span>
+        <i class="mdi mdi-monitor menu-icon"></i>
       </a>
     </li>
+
     <li class="nav-item {{ Route::is('js.*') ? 'active' : '' }}">
       <a class="nav-link" data-bs-toggle="collapse" href="#jsStudiMenu" aria-expanded="{{ Route::is('js.*') ? 'true' : 'false' }}">
         <span class="menu-title">JS Studi Kasus</span>

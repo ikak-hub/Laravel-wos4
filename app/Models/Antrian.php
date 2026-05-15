@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Antrian extends Model
 {
+    protected $table = 'antrian';      
     protected $primaryKey = 'idantrian';
  
     protected $fillable = [
