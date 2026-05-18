@@ -1,343 +1,494 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Papan Antrian</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Papan Antrian — Klinik</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-
-        /* ─── Animasi nomor baru ─── */
-        @keyframes slideIn {
-            from { transform: translateY(-30px); opacity: 0; }
-            to   { transform: translateY(0);     opacity: 1; }
+        * {
+            box-sizing: border-box;
         }
-        .slide-in { animation: slideIn 0.5s ease-out; }
 
-        /* ─── Flash latar saat panggil ─── */
-        @keyframes flashBg {
-            0%   { background-color: #1e40af; }
-            30%  { background-color: #059669; }
-            60%  { background-color: #1e40af; }
-            100% { background-color: #1e3a8a; }
+        body {
+            background: #0a1628;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            margin: 0;
         }
-        .flash-bg { animation: flashBg 1.2s ease-out forwards; }
 
-        /* ─── Ticker riwayat ─── */
-        @keyframes tickerScroll {
-            from { transform: translateX(100%); }
-            to   { transform: translateX(-100%); }
+        .papan-header {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            padding: 1.2rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .ticker-content {
+
+        .papan-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .jam-digital {
+            font-size: 2.2rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: #90caf9;
+        }
+
+        .papan-body {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 80px);
+        }
+
+        .panel-dipanggil {
+            background: linear-gradient(135deg, #0d2137, #0a3366);
+            border: 2px solid #1a73e8;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-dipanggil::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(26, 115, 232, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .label-dipanggil {
+            font-size: 1.2rem;
+            color: #90caf9;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .nomor-dipanggil {
+            font-size: 9rem;
+            font-weight: 900;
+            color: #ffd740;
+            line-height: 1;
+            text-shadow: 0 0 40px rgba(255, 215, 64, 0.4);
+            transition: all 0.4s ease;
+        }
+
+        .nama-dipanggil {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-top: 0.5rem;
+            transition: all 0.4s ease;
+        }
+
+        .loket-dipanggil {
+            margin-top: 1rem;
+            background: #1a73e8;
+            padding: 0.5rem 2rem;
+            border-radius: 50px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        @keyframes flash {
+            0% {
+                background: rgba(255, 215, 64, 0.3);
+            }
+
+            50% {
+                background: rgba(255, 215, 64, 0.05);
+            }
+
+            100% {
+                background: rgba(255, 215, 64, 0.3);
+            }
+        }
+
+        .panel-dipanggil.flash-anim {
+            animation: flash 0.6s ease 3;
+        }
+
+        .panel-kanan {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-box {
+            background: #0d2137;
+            border: 1px solid #1a3a6b;
+            border-radius: 16px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .panel-box-header {
+            background: #1a3a6b;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #90caf9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-box-body {
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 250px;
+        }
+
+        .antrian-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border: 1px solid #1a3a6b;
+        }
+
+        .row-nomor {
+            background: #1a73e8;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .row-nama {
+            font-size: 0.95rem;
+            color: #cdd6f4;
+            flex: 1;
+        }
+
+        .status-ind {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f44336;
             display: inline-block;
-            white-space: nowrap;
-            animation: tickerScroll 20s linear infinite;
+            transition: background 0.3s;
         }
-        .ticker-content:hover { animation-play-state: paused; }
+
+        .status-ind.on {
+            background: #4caf50;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.3
+            }
+        }
+
+        .idle-text {
+            font-size: 1.1rem;
+            color: #546e7a;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        #overlay-aktivasi {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #overlay-aktivasi .box {
+            background: #0d47a1;
+            border-radius: 20px;
+            padding: 3rem 4rem;
+            text-align: center;
+        }
+
+        #overlay-aktivasi h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        #btn-aktivasi {
+            font-size: 1.3rem;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            background: #ffc107;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            color: #000;
+        }
+
+        #btn-aktivasi:hover {
+            background: #ffca28;
+        }
+
+        .badge-count {
+            background: #1a73e8;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
     </style>
 </head>
 
-<body class="bg-blue-900 min-h-screen flex flex-col text-white select-none">
+<body>
 
-    {{-- ── HEADER ─────────────────────────────────────── --}}
-    <header class="flex items-center justify-between px-8 py-4 bg-blue-800 shadow-lg">
-        <div>
-            <h1 class="text-2xl font-black tracking-tight">🏥 Rumah Sakit Digital</h1>
-            <p class="text-blue-300 text-sm mt-0.5">Sistem Antrian Real-Time</p>
-        </div>
-        <div class="text-right">
-            <div id="jam" class="text-3xl font-bold font-mono tracking-widest"></div>
-            <div id="tanggal" class="text-blue-300 text-sm mt-0.5"></div>
-        </div>
-    </header>
-
-    {{-- ── MAIN DISPLAY ────────────────────────────────── --}}
-    <main class="flex-1 flex flex-col items-center justify-center px-8 py-6">
-
-        {{-- Kotak utama nomor dipanggil --}}
-        <div id="main-box"
-             class="w-full max-w-2xl bg-blue-800 rounded-3xl shadow-2xl p-10 text-center transition-all">
-
-            <p class="text-blue-300 text-sm font-medium uppercase tracking-widest mb-4">
-                🔊 Sedang Dipanggil
-            </p>
-
-            {{-- Nomor antrian --}}
-            <div id="nomor-display"
-                 class="text-[120px] font-black leading-none tracking-tight text-white mb-4">
-                ——
-            </div>
-
-            {{-- Nama pasien --}}
-            <div id="nama-display"
-                 class="text-3xl font-bold text-blue-200 mb-5 min-h-[2.5rem]">
-                Menunggu Panggilan
-            </div>
-
-            {{-- Loket banner — multi-loket support --}}
-            <div id="loket-display"
-                 class="hidden inline-flex items-center gap-3 bg-green-500 text-white font-bold
-                        text-2xl px-8 py-3 rounded-2xl shadow-lg">
-                <span>➡️</span>
-                <span id="loket-text">Loket 1</span>
-            </div>
-        </div>
-
-        {{-- ── GRID: Antrian Menunggu + Stats ─────────── --}}
-        <div class="w-full max-w-2xl mt-6 grid grid-cols-2 gap-4">
-
-            {{-- Menunggu berikutnya --}}
-            <div class="bg-blue-800 rounded-2xl p-5">
-                <p class="text-blue-400 text-xs uppercase tracking-widest font-medium mb-3">
-                    ⏳ Menunggu Berikutnya
-                </p>
-                <div id="list-menunggu" class="space-y-2">
-                    <p class="text-blue-400 text-sm">Antrian kosong</p>
-                </div>
-            </div>
-
-            {{-- Status & Stats --}}
-            <div class="bg-blue-800 rounded-2xl p-5 space-y-3">
-                <p class="text-blue-400 text-xs uppercase tracking-widest font-medium mb-1">
-                    📊 Status Hari Ini
-                </p>
-                <div class="flex justify-between items-center">
-                    <span class="text-blue-300 text-sm">Total Mendaftar</span>
-                    <span id="s-total" class="font-bold text-white text-lg">0</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-blue-300 text-sm">Sedang Menunggu</span>
-                    <span id="s-menunggu" class="font-bold text-yellow-300 text-lg">0</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-blue-300 text-sm">Terlambat</span>
-                    <span id="s-terlambat" class="font-bold text-orange-400 text-lg">0</span>
-                </div>
-
-                {{-- SSE status --}}
-                <div class="pt-2 border-t border-blue-700 flex items-center gap-2">
-                    <span id="dot-sse" class="w-2 h-2 rounded-full bg-gray-400"></span>
-                    <span id="sse-label" class="text-blue-400 text-xs">Menghubungkan…</span>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    {{-- ── TICKER RIWAYAT ───────────────────────────────── --}}
-    <footer class="bg-blue-950 py-2.5 px-0 overflow-hidden">
-        <div class="ticker-content text-blue-400 text-sm px-4" id="ticker-text">
-            Selamat datang di Sistem Antrian Rumah Sakit Digital &nbsp;•&nbsp;
-            Harap perhatikan layar ini dan dengarkan panggilan &nbsp;•&nbsp;
-            Nomor yang telah dipanggil 3 kali dan tidak hadir akan dipindah ke daftar terlambat
-        </div>
-    </footer>
-
-    {{-- ── OVERLAY: aktivasi suara pertama kali ───────────── --}}
-    <div id="overlay-suara"
-         class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white text-gray-800 rounded-3xl p-10 text-center max-w-sm shadow-2xl">
-            <div class="text-6xl mb-4">🔊</div>
-            <h2 class="text-2xl font-bold mb-2">Aktifkan Suara</h2>
-            <p class="text-gray-500 text-sm mb-6">
-                Tekan tombol di bawah untuk mengaktifkan notifikasi suara otomatis pada papan antrian ini.
-            </p>
-            <button onclick="aktivasiSuara()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl
-                           transition text-lg w-full">
-                ▶ Mulai & Aktifkan Suara
-            </button>
+    <div id="overlay-aktivasi">
+        <div class="box">
+            <div style="font-size:4rem;">🔊</div>
+            <h3 style="color:white; margin-top:0.5rem;">Aktifkan Papan Antrian</h3>
+            <p style="color:#90caf9; margin-bottom:1.5rem;">Klik tombol untuk mengaktifkan tampilan dan notifikasi suara</p>
+            <button id="btn-aktivasi">▶ Mulai Papan Antrian</button>
         </div>
     </div>
 
-    {{-- ── Audio ding-dong ─────────────────────────────────── --}}
-    {{--
-        Letakkan file dingdong.mp3 di folder public/audio/dingdong.mp3
-        Anda bisa mencari file ding-dong gratis di internet (contoh: freesound.org)
-        Potong audio sekitar 1-2 detik saja (bagian "ting-tong"-nya)
-    --}}
-    <audio id="audio-dingdong" src="{{ asset('audio/dingdong.mp3') }}" preload="auto"></audio>
+    <div class="papan-header">
+        <div>
+            <h2>🏥 Papan Antrian — Klinik</h2>
+            <small style="color:#90caf9; font-size:0.85rem;">
+                <span class="status-ind" id="status-ind"></span>
+                <span id="status-label" style="margin-left:6px;">Menghubungkan...</span>
+            </small>
+        </div>
+        <div class="jam-digital" id="jam-digital">00:00:00</div>
+    </div>
+
+    <div class="papan-body">
+        <div class="panel-dipanggil" id="panel-dipanggil">
+            <div class="label-dipanggil">⚡ Nomor Dipanggil</div>
+            <div class="nomor-dipanggil" id="disp-nomor">—</div>
+            <div class="nama-dipanggil" id="disp-nama">Menunggu panggilan...</div>
+            <div class="loket-dipanggil" id="disp-loket" style="visibility:hidden;">Loket —</div>
+        </div>
+
+        <div class="panel-kanan">
+            <div class="panel-box">
+                <div class="panel-box-header">
+                    <span>📋 Antrian Menunggu</span>
+                    <span class="badge-count" id="badge-menunggu">0</span>
+                </div>
+                <div class="panel-box-body" id="list-menunggu">
+                    <div class="idle-text">Belum ada antrian</div>
+                </div>
+            </div>
+            <div class="panel-box">
+                <div class="panel-box-header">
+                    <span>🔔 Riwayat Panggilan Hari Ini</span>
+                </div>
+                <div class="panel-box-body" id="list-riwayat">
+                    <div class="idle-text">Belum ada panggilan</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audio-tingong" src="/audio/dingdong.mp3" preload="auto"></audio>
 
     <script>
-    // ── Jam digital ──────────────────────────────────────────
-    function updateJam() {
-        const now = new Date();
-        document.getElementById('jam').textContent = now.toLocaleTimeString('id-ID', {
-            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-        });
-        document.getElementById('tanggal').textContent = now.toLocaleDateString('id-ID', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-        });
-    }
-    updateJam();
-    setInterval(updateJam, 1000);
-
-    // ── State terakhir (untuk deteksi perubahan) ─────────────
-    let lastNomor   = null;
-    let lastLoket   = null;
-    let suaraAktif  = false;
-    let riwayatTicker = [];
-
-    // ── Aktivasi suara (user gesture policy) ─────────────────
-    function aktivasiSuara() {
-        suaraAktif = true;
-        document.getElementById('overlay-suara').remove();
-        // Test audio singkat
-        const audio = document.getElementById('audio-dingdong');
-        audio.volume = 0.01;
-        audio.play().catch(() => {});
-        audio.volume = 1.0;
-    }
-
-    // ── Play suara + TTS ─────────────────────────────────────
-    function bunyikanPanggilan(nomor, nama, loket) {
-        if (!suaraAktif) return;
-        if (!('speechSynthesis' in window)) {
-            console.warn('Browser tidak mendukung Web Speech API');
-            return;
+        // ── Jam Digital ──────────────────────────────────────────────
+        function updateJam() {
+            const now = new Date();
+            document.getElementById('jam-digital').textContent =
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
         }
+        setInterval(updateJam, 1000);
+        updateJam();
 
-        window.speechSynthesis.cancel();
+        // ── State ────────────────────────────────────────────────────
+        let lastNomor = null; // nomor terakhir yang dipanggil — untuk deteksi perubahan
+        let audioReady = false;
+        const riwayat = [];
 
-        const audio = document.getElementById('audio-dingdong');
-        const pesan = new SpeechSynthesisUtterance(
-            `Nomor antrian ${nomor}. ${nama}. Silakan menuju loket ${loket}.`
-        );
-        pesan.lang   = 'id-ID';
-        pesan.rate   = 0.88;
-        pesan.pitch  = 1.0;
-        pesan.volume = 1.0;
-
-        audio.currentTime = 0;
-        audio.play().then(() => {
-            audio.onended = function () {
-                window.speechSynthesis.speak(pesan);
-            };
-        }).catch(() => {
-            // Jika audio gagal, langsung TTS
-            window.speechSynthesis.speak(pesan);
-        });
-    }
-
-    // ── Flash animasi latar ──────────────────────────────────
-    function flashMainBox() {
-        const box = document.getElementById('main-box');
-        box.classList.remove('flash-bg');
-        void box.offsetWidth; // reflow trick
-        box.classList.add('flash-bg');
-    }
-
-    // ── Render state dari SSE ─────────────────────────────────
-    function renderState(state) {
-        // Stats
-        document.getElementById('s-total').textContent     = state.total_terdaftar ?? 0;
-        document.getElementById('s-menunggu').textContent  = state.menunggu?.length ?? 0;
-        document.getElementById('s-terlambat').textContent = state.terlambat?.length ?? 0;
-
-        // Dipanggil
-        const d = state.dipanggil;
-        if (d) {
-            const isNew = (d.nomor !== lastNomor || d.loket !== lastLoket);
-
-            if (isNew) {
-                // Update nomor & nama dengan animasi
-                const nomorEl = document.getElementById('nomor-display');
-                const namaEl  = document.getElementById('nama-display');
-                const loketEl = document.getElementById('loket-display');
-                const loketTxt = document.getElementById('loket-text');
-
-                nomorEl.classList.remove('slide-in');
-                void nomorEl.offsetWidth;
-                nomorEl.classList.add('slide-in');
-
-                nomorEl.textContent = d.nomor;
-                namaEl.textContent  = d.nama;
-                loketTxt.textContent = `Loket ${d.loket}`;
-                loketEl.classList.remove('hidden');
-
-                flashMainBox();
-                bunyikanPanggilan(d.nomor, d.nama, d.loket);
-
-                // Tambah ke ticker riwayat
-                riwayatTicker.unshift(`Nomor ${d.nomor} — ${d.nama} → Loket ${d.loket} (${d.waktu})`);
-                if (riwayatTicker.length > 10) riwayatTicker.pop();
-                updateTicker();
-
-                lastNomor = d.nomor;
-                lastLoket = d.loket;
+        // ── Render Menunggu ──────────────────────────────────────────
+        function renderMenunggu(list) {
+            document.getElementById('badge-menunggu').textContent = list.length;
+            const el = document.getElementById('list-menunggu');
+            if (!list.length) {
+                el.innerHTML = `<div class="idle-text">Tidak ada antrian</div>`;
+                return;
             }
-        } else {
-            document.getElementById('nomor-display').textContent = '——';
-            document.getElementById('nama-display').textContent  = 'Menunggu Panggilan';
-            document.getElementById('loket-display').classList.add('hidden');
-            lastNomor = null;
-            lastLoket = null;
+            el.innerHTML = list.map(a => `
+        <div class="antrian-row">
+            <span class="row-nomor">${a.nomor}</span>
+            <span class="row-nama">${a.nama}</span>
+        </div>
+    `).join('');
         }
 
-        // List menunggu (tampilkan max 5)
-        const listEl = document.getElementById('list-menunggu');
-        const menunggu = state.menunggu ?? [];
-        if (!menunggu.length) {
-            listEl.innerHTML = `<p class="text-blue-400 text-sm">Antrian kosong</p>`;
-        } else {
-            listEl.innerHTML = menunggu.slice(0, 5).map((item, i) => `
-                <div class="flex items-center justify-between bg-blue-700/50 rounded-lg px-3 py-1.5">
-                    <span class="font-bold text-white text-sm">${item.nomor}</span>
-                    <span class="text-blue-300 text-sm truncate ml-2 flex-1">${item.nama}</span>
-                    ${i === 0 ? `<span class="text-yellow-300 text-xs ml-2">BERIKUTNYA</span>` : ''}
-                </div>
-            `).join('');
-            if (menunggu.length > 5) {
-                listEl.innerHTML += `
-                    <p class="text-blue-400 text-xs text-center mt-1">
-                        + ${menunggu.length - 5} antrian lainnya
-                    </p>`;
+        // ── Render Riwayat ───────────────────────────────────────────
+        function renderRiwayat() {
+            const el = document.getElementById('list-riwayat');
+            if (!riwayat.length) {
+                el.innerHTML = `<div class="idle-text">Belum ada panggilan</div>`;
+                return;
+            }
+            el.innerHTML = [...riwayat].reverse().map(r => `
+        <div class="antrian-row">
+            <span class="row-nomor">${r.nomor}</span>
+            <span class="row-nama">${r.nama}</span>
+            <small style="color:#546e7a; font-size:0.75rem;">Loket ${r.loket}</small>
+        </div>
+    `).join('');
+        }
+
+        // ── Update Panel Dipanggil ───────────────────────────────────
+        function updatePanelDipanggil(dp) {
+            document.getElementById('disp-nomor').textContent = dp.nomor;
+            document.getElementById('disp-nama').textContent = dp.nama;
+            const loketEl = document.getElementById('disp-loket');
+            loketEl.textContent = `Silakan menuju Loket ${dp.loket}`;
+            loketEl.style.visibility = 'visible';
+
+            // Flash
+            const panel = document.getElementById('panel-dipanggil');
+            panel.classList.remove('flash-anim');
+            void panel.offsetWidth;
+            panel.classList.add('flash-anim');
+
+            // Tambah riwayat kalau belum ada
+            if (!riwayat.find(r => r.nomor === dp.nomor)) {
+                riwayat.push(dp);
+                renderRiwayat();
             }
         }
-    }
 
-    // ── Ticker riwayat ───────────────────────────────────────
-    function updateTicker() {
-        const ticker = document.getElementById('ticker-text');
-        if (riwayatTicker.length) {
-            ticker.textContent = riwayatTicker.join('   •   ');
+        // ── Suara ────────────────────────────────────────────────────
+        function bunyikanDingDong() {
+            return new Promise((resolve) => {
+                const audio = document.getElementById('audio-tingong');
+                audio.currentTime = 0;
+                audio.volume = 1;
+                audio.onended = () => resolve();
+                audio.onerror = () => resolve(); // kalau gagal, lanjut speech
+                audio.play().catch(() => resolve());
+            });
         }
-    }
+        // ── Suara ────────────────────────────────────────────────────
+        function bunyikanPanggilan(dp) {
+            if (!audioReady) return;
+            if (!('speechSynthesis' in window)) return;
 
-    // ── SSE ──────────────────────────────────────────────────
-    const dot      = document.getElementById('dot-sse');
-    const sseLabel = document.getElementById('sse-label');
+            window.speechSynthesis.cancel();
 
-    // Load state awal
-    fetch('{{ route("antrian.state") }}')
-        .then(r => r.json())
-        .then(state => {
-            renderState(state);
-            // Isi riwayat ticker dari riwayat Cache
-            if (state.riwayat?.length) {
-                riwayatTicker = state.riwayat.map(
-                    r => `Nomor ${r.nomor} — ${r.nama} → Loket ${r.loket} (${r.waktu})`
-                );
-                updateTicker();
-            }
+            const ucap = new SpeechSynthesisUtterance(
+                `Nomor antrian ${dp.nomor}. ${dp.nama}. Silakan menuju Loket ${dp.loket}.`
+            );
+            ucap.lang = 'id-ID';
+            ucap.rate = 0.85;
+            ucap.pitch = 1.0;
+            ucap.volume = 1.0;
+
+            const audio = document.getElementById('audio-tingong');
+            audio.currentTime = 0;
+            audio.volume = 1;
+
+            audio.play().then(() => {
+                // Mulai speech 150ms sebelum audio habis
+                setTimeout(() => {
+                    window.speechSynthesis.speak(ucap);
+                }, 3000);
+            }).catch(() => {
+                window.speechSynthesis.speak(ucap);
+            });
+        }
+
+        // ── Polling ──────────────────────────────────────────────────
+        function pollState() {
+            fetch('/antrian/state')
+                .then(r => r.json())
+                .then(state => {
+                    // Status indikator
+                    document.getElementById('status-ind').classList.add('on');
+                    document.getElementById('status-label').textContent = 'Terhubung — Real-Time';
+
+                    // Render menunggu
+                    renderMenunggu(state.menunggu ?? []);
+
+                    // Cek dipanggil
+                    const dp = state.dipanggil ?? null;
+
+                    if (dp) {
+                        // Kalau nomor berubah → animasi + suara
+                        if (dp.nomor !== lastNomor) {
+                            lastNomor = dp.nomor;
+                            updatePanelDipanggil(dp);
+                            bunyikanPanggilan(dp);
+                        } else {
+                            // Nomor sama, update display saja tanpa suara
+                            updatePanelDipanggil(dp);
+                        }
+                    } else if (lastNomor !== null) {
+                        // Tidak ada yang dipanggil (selesai/reset)
+                        lastNomor = null;
+                        document.getElementById('disp-nomor').textContent = '—';
+                        document.getElementById('disp-nama').textContent = 'Menunggu panggilan...';
+                        document.getElementById('disp-loket').style.visibility = 'hidden';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('status-ind').classList.remove('on');
+                    document.getElementById('status-label').textContent = 'Terputus...';
+                });
+        }
+
+        // ── Aktivasi (user gesture untuk audio) ─────────────────────
+        document.getElementById('btn-aktivasi').addEventListener('click', function() {
+            document.getElementById('overlay-aktivasi').style.display = 'none';
+            audioReady = true;
+
+            // Warm up audio
+            const audio = document.getElementById('audio-tingong');
+            audio.volume = 0.001;
+            audio.play().then(() => {
+                audio.pause();
+                audio.volume = 1;
+            }).catch(() => {});
+
+            // Mulai polling
+            pollState();
+            setInterval(pollState, 2000);
         });
-
-    const source = new EventSource('{{ route("antrian.stream") }}');
-
-    source.addEventListener('queue-update', function (e) {
-        renderState(JSON.parse(e.data));
-    });
-
-    source.onopen = function () {
-        dot.className   = 'w-2 h-2 rounded-full bg-green-400';
-        sseLabel.textContent = 'Terhubung ✓';
-    };
-
-    source.onerror = function () {
-        dot.className   = 'w-2 h-2 rounded-full bg-red-400';
-        sseLabel.textContent = 'Terputus — mencoba ulang…';
-    };
     </script>
 </body>
+
 </html>
